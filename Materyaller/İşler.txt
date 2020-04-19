@@ -1,0 +1,34 @@
+Kullanıcıların Konumunu alıp Real Time Database'ye Kaydetmek, Online Olup olmadığının kontrolünün yaılması
+Driver Sidedaki Haritadaki istek yapan kullanıcıların gösterilmesi Konuma göre filtrele
+
+
+Map daki konuma göre sadece göstersin
+
+---------------------------------------------------------------------------------------------------------------------
+(ÖNCE YOLCUYA DOĞRU HARİTA YOLU ÇİZCEK SONRA YOLCU BİNDİĞİNDE KONUMUN YOLUNU ÇİZCEK)s
+
+
+
+
+
+YOLCUYA GELDİĞİNDE YAKINSA ONAYLA,
+BİTİRDİĞİNDE VARIŞ MESAFESİNE GEL
+
+Sürücü Online User  ve Yolcu isteği Kısmı Sıkılı Geç Geliyo ve Yenileme Gerekiyor
+
+** Sürücü kabul ettikden sonraki işlemler, helperlar
+
+** Sürücüyle Yolcu Arasınad Mesajlaşma Modülü ==> Bitti Sayılır
+
+** Sadece O Sürücünün Konumunu Görme (Eşleştikten Sonra) ==> Bitti
+
+** Sürücünün geleceği süreyi google apiden hesaplayan sistem
+
+
+
+
+
+
+** Sürücü Yolculuğu Bitirdikden Sonra hata çıkıyor ==> Siliniyor..
+
+** Sürücü Yolcu Kabul etti Mesajından Sonra harittay yönlendir veya harita ekle Sonra hata çıkıyor

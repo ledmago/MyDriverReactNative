@@ -1,0 +1,84 @@
+import React from 'react';
+import { AsyncStorage, View, Text, ScrollView, } from 'react-native';
+import firebase from '../components/Firebase';
+
+var state = {
+}
+var RegisterProps;
+export const Initial = (props) => {
+    {
+        RegisterProps = props;
+
+    }
+}
+
+function ValidateEmail(mail) {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+        return (true)
+    }
+    return (false)
+}
+
+function checkValues(name, email, password, gender, sozlesme, telefon, aracMarka, aracModel, surucuBelgesi, aracModelYili, aracPlaka, aracRenk) {
+    var errorMessage = '';
+    var nameOnay = name.length > 4 && name.length < 17 ? true : false;
+    var emailOnay = ValidateEmail(email);
+    var passwordOnay = password.length > 5 && password.length < 11 ? true : false;
+    var genderOnay = gender == 'erkek' || gender == 'kadin' ? true : false;
+    var sozlesmeOnay = sozlesme;
+    var aracMarkaOnay = aracMarka != '0' || aracMarka != 0 || aracMarka != null;
+    var aracModelOnay = aracModel != '0' || aracModel != 0 || aracModel != null;
+    var surucuBelgesiOnay = surucuBelgesi == 'var' || surucuBelgesi == 'yok' ? true : false;
+    var aracModelYiliOnay = aracModelYili.length > 3;
+    var aracPlakaOnay = aracPlaka.length > 5;
+    var aracRenk = aracRenk.length > 3;
+
+    if (!nameOnay) { errorMessage += 'Geçersiz Ad Soyad\n' }
+    if (!emailOnay) { errorMessage += 'Geçersiz Email adresi\n' }
+    if (!passwordOnay) { errorMessage += 'Şifre 5 ile 11 karakter arası olmalıdır.\n' }
+    if (!genderOnay) { errorMessage += 'Lütfen cinsiyet seçiniz.\n' }
+    if (!sozlesmeOnay) { errorMessage += 'Lütfen Kullanıcı Sözleşmesini Kabul Ediniz.\n' }
+    if (!aracMarkaOnay) { errorMessage += 'Lütfen Araç Markasını Seçiniz.\n' }
+    if (!aracModelOnay) { errorMessage += 'Lütfen Araç Modelini Seçiniz.\n' }
+    if (!surucuBelgesiOnay) { errorMessage += 'Lütfen Sürücü Belgesini İşaretleyin\n' + aracModelYili + '..' }
+    if (!aracModelYiliOnay) { errorMessage += 'Lütfen Araç Model Yılını Yazın.\n' }
+    if (!aracPlakaOnay) { errorMessage += 'Lütfen Araç Plakasını Yazın.\n' }
+    if (!aracRenk) { errorMessage += 'Lütfen Araç Rengini Yazın.\n' }
+
+    if (nameOnay && emailOnay && passwordOnay && genderOnay && sozlesmeOnay && aracMarkaOnay && surucuBelgesiOnay && aracModelYiliOnay && aracPlakaOnay,aracRenk) { return true } else { alert(errorMessage) }
+
+    return false;
+
+}
+
+
+export const MakeRegister = async (name, email, password, gender, sozlesme, telefon, aracMarka, aracModel, surucuBelgesi, aracModelYili, aracPlaka,aracRenk) => {
+    if (checkValues(name, email, password, gender, sozlesme, telefon, aracMarka, aracModel, surucuBelgesi, aracModelYili, aracPlaka,aracRenk)) {
+        firebase.auth().createUserWithEmailAndPassword(email, password).then(() => {
+            const thisUser = firebase.auth().currentUser;
+            const dbh = firebase.firestore();
+            dbh.collection("drivers").doc(thisUser.uid).set({
+                name: name,
+                email: email,
+                password: password,
+                gender: gender,
+                lat: 0,
+                long: 0,
+                balance: 0,
+                address: '',
+                telefon: telefon,
+                aracMarka: aracMarka,
+                aracModel: aracModel,
+                surucuBelgesi: surucuBelgesi,
+                aracModelYili: aracModelYili,
+                aracPlaka: aracPlaka,
+                aracRenk:aracRenk,
+            }).then(() => {
+                AsyncStorage.setItem('userToken', thisUser.uid).then(() => { AsyncStorage.setItem('userType', 'driver').then(() => { RegisterProps.navigation.navigate('AppDriver') }) })
+
+            })
+        }).catch((errorMessage) => alert(errorMessage))
+    }
+
+
+}
