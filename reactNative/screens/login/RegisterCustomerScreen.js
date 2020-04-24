@@ -30,7 +30,9 @@ class SplashPage extends React.Component {
 
     }
     state = {
+        username:'',
         name: '',
+        lastName:'',
         gender: '',
         email: '',
         password: '',
@@ -58,7 +60,7 @@ class SplashPage extends React.Component {
 
         if (this.phone.isValidNumber()) {
            
-            RegisterCustomer.MakeRegister(this.state.name, this.state.email, this.state.password, this.state.gender, this.state.sozlesme,this.phone.getValue()).then(() => {
+            RegisterCustomer.MakeRegister(this.state.username,this.state.name, this.state.lastName,this.state.email, this.state.password, this.state.gender, this.state.sozlesme,this.phone.getValue()).then(() => {
                 setTimeout(() => { this.setState({ btnLoading: false }) }, 1000)
             });
             
@@ -116,11 +118,32 @@ class SplashPage extends React.Component {
                             <TextInput
                                 placeholderTextColor={'#CCC'}
                                 style={styles.input}
+                                value={this.state.username}
+                                onChangeText={username => this.setState({ username })}
+                                placeholder="Kullanıcı Adınız"
+                                autoCorrect={false}
+                                returnKeyType='none'
+                                onSubmitEditing={this._submit}
+                                blurOnSubmit={true}
+                            />
+                            <TextInput
+                                placeholderTextColor={'#CCC'}
+                                style={styles.input}
                                 value={this.state.name}
                                 onChangeText={name => this.setState({ name })}
-                                placeholder="Ad Soyad"
+                                placeholder="Adınız"
                                 autoCorrect={false}
-                                keyboardType='name-phone-pad'
+                                returnKeyType='none'
+                                onSubmitEditing={this._submit}
+                                blurOnSubmit={true}
+                            />
+                              <TextInput
+                                placeholderTextColor={'#CCC'}
+                                style={styles.input}
+                                value={this.state.lastName}
+                                onChangeText={lastName => this.setState({ lastName })}
+                                placeholder="Soyadınız"
+                                autoCorrect={false}
                                 returnKeyType='none'
                                 onSubmitEditing={this._submit}
                                 blurOnSubmit={true}
@@ -182,8 +205,8 @@ class SplashPage extends React.Component {
                                     }
                                     }>
                                     <Picker.Item label="Cinsiyet" value="0" />
-                                    <Picker.Item label="Erkek" value="erkek" />
-                                    <Picker.Item label="Kadın" value="kadin" />
+                                    <Picker.Item label="Erkek" value="male" />
+                                    <Picker.Item label="Kadın" value="female" />
                                 </Picker>
                                 <CheckBox
                                     center

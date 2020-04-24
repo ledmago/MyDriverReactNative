@@ -23,6 +23,7 @@ import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { MonoText } from '../components/StyledText';
 import MapView from 'react-native-maps';
+import config from '../config.json';
 import { Divider, SearchBar, Avatar, ListItem, Button, Badge } from 'react-native-elements';
 import * as Font from 'expo-font';
 import * as CustomerSide_HomeController from '../Controller/CustomerSide_HomeController';
@@ -78,7 +79,9 @@ export default class HomeScreen extends React.Component {
   };
 
 
-  onRefresh = () => {
+  onRefresh = async() => {
+
+  
 
     this.setState({ refreshing: true })
     this.componentDidMount().then(() => this.setState({ refreshing: false }));
@@ -250,12 +253,20 @@ export default class HomeScreen extends React.Component {
 
 
   async componentDidMount() {
-    CustomerSide_HomeController.Initial(this.props);
-    // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
-    CustomerSide_HomeController.getUserDetails().then((userdata) => { this.setState({ userDetails: userdata }); })
+    
+    // Bunu Çıkar
+setTimeout(async ()=>{
+ let response = await fetch(config.apiURL + 'Logout' + '/', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', } });
+    this.props.navigation.navigate('Auth');
+},3000)
+   
+    // CustomerSide_HomeController.Initial(this.props);
+    // // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
+    // CustomerSide_HomeController.getUserDetails().then((userdata) => { this.setState({ userDetails: userdata }); })
 
-    //  CustomerSide_HomeController.getOnlineUsers().then((e) => {/* this.setState({onlineUsers:e}); */   });
-    this.CheckLocation();
+    // //  CustomerSide_HomeController.getOnlineUsers().then((e) => {/* this.setState({onlineUsers:e}); */   });
+    // this.CheckLocation();
+    
 
   }
 
