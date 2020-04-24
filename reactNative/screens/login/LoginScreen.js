@@ -28,6 +28,7 @@ class SplashPage extends React.Component {
     email: '',
     password: '',
     btnLoading: false,
+    btnLoading2: false,
 
   };
   // HeaderBar'ı Kapat
@@ -38,14 +39,13 @@ class SplashPage extends React.Component {
   }
   _submit = () => {
     this.setState({ btnLoading: true })
-   
-    
-      LoginController.Login(this.state.email, this.state.password).then(()=>  this.setState({ btnLoading: false }));
+    LoginController.Login(this.state.email, this.state.password, 'user').then(() => this.setState({ btnLoading: false }));
+   }
 
- 
-
-
-  }
+   _submit2 = () => {
+    this.setState({ btnLoading2: true })
+    LoginController.Login(this.state.email, this.state.password, 'driver').then(() => this.setState({ btnLoading2: false }));
+   }
 
   componentDidMount() {
     LoginController.Initial(this.props);
@@ -76,7 +76,7 @@ class SplashPage extends React.Component {
                 value={this.state.email}
                 onChangeText={email => this.setState({ email })}
                 ref={ref => { this._emailInput = ref }}
-                placeholder="Email Adresi"
+                placeholder="Kullanıcı Adı Veya Email"
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
@@ -98,16 +98,17 @@ class SplashPage extends React.Component {
                 onSubmitEditing={this._submit}
                 blurOnSubmit={true}
               />
-              <Button title="Giriş" loading={this.state.btnLoading} buttonStyle={{ height: 50, borderRadius: 1, backgroundColor: '#444' }} containerStyle={{ marginTop: 20, width: 85 + '%', alignSelf: 'center', }} onPress={this._submit} />
+              <Button title="Yolcu Olarak Giriş Yap" loading={this.state.btnLoading} buttonStyle={{ height: 50, borderRadius: 1, backgroundColor: '#444' }} containerStyle={{ marginTop: 20, width: 85 + '%', alignSelf: 'center', }} onPress={this._submit} />
+              <Button title="Sürücü Olarak Giriş Yap" loading={this.state.btnLoading2} buttonStyle={{ height: 50, borderRadius: 1, backgroundColor: '#af2f99' }} containerStyle={{ marginTop: 1, width: 85 + '%', alignSelf: 'center', }} onPress={this._submit2} />
               <View style={styles.forgetPassowrd}>
-                <TouchableOpacity style={{alignSelf:'flex-start',width:50+'%'}}><Text style={{ color: '#8c8c8c',fontSize:16}}>Şifremi Unuttum</Text></TouchableOpacity>
-                <TouchableOpacity style={{alignSelf:'flex-end',width:50+'%'}} onPress={()=>this.props.navigation.navigate('RegisterSplash')}><Text style={{ color: '#8c8c8c',textAlign:'right',fontSize:16}}>Kayıt Ol</Text></TouchableOpacity>
+                <TouchableOpacity style={{ alignSelf: 'flex-start', width: 50 + '%' }}><Text style={{ color: '#8c8c8c', fontSize: 16 }}>Şifremi Unuttum</Text></TouchableOpacity>
+                <TouchableOpacity style={{ alignSelf: 'flex-end', width: 50 + '%' }} onPress={() => this.props.navigation.navigate('RegisterSplash')}><Text style={{ color: '#8c8c8c', textAlign: 'right', fontSize: 16 }}>Kayıt Ol</Text></TouchableOpacity>
               </View>
             </View>
 
 
           </KeyboardAvoidingView>
-          <View style={{backgroundColor:'#222',opacity:0.7,padding:5,alignItems:'center'}}><Text style={{color:'#EBEBEB',fontSize:13,}}>Tüm Hakları Saklıdır - Copyright © 2019</Text></View>
+          <View style={{ backgroundColor: '#222', opacity: 0.7, padding: 5, alignItems: 'center' }}><Text style={{ color: '#EBEBEB', fontSize: 13, }}>Tüm Hakları Saklıdır - Copyright © 2019</Text></View>
         </View>
       </ImageBackground>
     )
@@ -121,8 +122,8 @@ var styles = StyleSheet.create({
   {
     alignSelf: 'center',
     marginTop: 10,
-    flexDirection:'row',
-    width:75 +'%',
+    flexDirection: 'row',
+    width: 85 + '%',
   },
   backgroundCover:
   {

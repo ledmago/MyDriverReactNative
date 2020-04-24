@@ -1,6 +1,7 @@
 import React from 'react';
 import { AsyncStorage, View, Text, ScrollView, } from 'react-native';
 import firebase from '../components/Firebase';
+import config from '../config.json';
 
 var state = {
 }
@@ -12,42 +13,37 @@ export const Initial = (props) => {
     }
 }
 
-export const Login = async (email, password) => {
-    firebase.auth().signInWithEmailAndPassword(email, password).then(function (user) {
-        const thisUser = firebase.auth().currentUser;
-        AsyncStorage.setItem('userToken', thisUser.uid).then(function () {
+var sendPostRequest = async (params, api) => {
 
-            const dbh = firebase.firestore();
-            dbh.collection("users").doc(thisUser.uid).get().then(async (snapshot) => {
+    try {
+        let response = await fetch(config.apiURL + api + '/', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', }, body: JSON.stringify(params), });
+        let json = await response.json();
+        return json;
+    } catch (error) {
+        return false;
+    }
 
-                if(snapshot.exists)
-                {
-                    AsyncStorage.setItem('usertype', 'rider').then(function () {LoginProps.navigation.navigate('App');})
-                }
-                else
-                {
-                    const dbhDriver = firebase.firestore();
-                    dbhDriver.collection("drivers").doc(thisUser.uid).get().then(async (snapshot) => {
-        
-                        if(snapshot.exists)
-                        {
-                            AsyncStorage.setItem('usertype', 'driver').then(function () {LoginProps.navigation.navigate('AppDriver');})
-                        }
-                        else{
-                            AsyncStorage.removeItem('userToken').then(function () {alert('Bir Hata Oluştu. Bizimle İletişime Geçin. Hata Kodu: USR_045');})
-                        }
-                    })
-                }
-
-            })
-
-            
-
-        })
-    }).catch((hata) => {
-        ErrorMessages(hata, hata.code)
-    });
 }
+
+export const Login = async (username, password, userType) => {
+
+    var loginRequest = await sendPostRequest({ username: username, password: password }, userType == 'user' ? 'LoginUser' : 'LoginDriver');
+    if (loginRequest) {
+
+        if (loginRequest.username != null) {
+
+            LoginProps.navigation.navigate(loginRequest.userType == 'user' ? 'App' : 'AppDriver');
+        }
+        else {
+            alert('Kullanıcı adı veya Email ve Şifre Uyuşmadı');
+        }
+    }
+    else {
+        alert('Sunuculara erişilemedi, internet bağlantınızı kontrol edin');
+    }
+
+}
+
 export const ErrorMessages = (hata, code) => {
     switch (code) {
         default: alert(hata); break;

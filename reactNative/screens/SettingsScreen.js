@@ -22,6 +22,7 @@ import Constants from 'expo-constants';
 import { MonoText } from '../components/StyledText';
 import MapView from 'react-native-maps';
 import { Divider, SearchBar, Avatar, ListItem, Button, Badge } from 'react-native-elements';
+import config from '../config.json';
 import * as Font from 'expo-font';
 import * as CustomerSide_HomeController from '../Controller/CustomerSide_HomeController';
 import CreditCardComponent from '../components/CreditCardList';
@@ -50,28 +51,28 @@ export default class HomeScreen extends React.Component {
     Modal1OpenLoadingButton: false,
   }
 
-  
+
 
   list = [
     {
       title: 'Profili Düzenle',
       icon: 'people',
-      function:()=>{this.props.navigation.navigate('ProfilDuzenleScreen')}
+      function: () => { this.props.navigation.navigate('ProfilDuzenleScreen') }
     },
     {
       title: 'Bildirim Ayarları',
       icon: 'notifications',
-      function:()=>{this.props.navigation.navigate('BildirimAyarScreen')}
+      function: () => { this.props.navigation.navigate('BildirimAyarScreen') }
     },
     {
       title: 'Mesajlaşma Ayarları',
       icon: 'email',
-      function:()=>{this.props.navigation.navigate('MesajAyarScreen')}
+      function: () => { this.props.navigation.navigate('MesajAyarScreen') }
     },
     {
       title: 'Çıkış',
       icon: 'power',
-      function:()=>{this.logOut()}
+      function: () => { this.logOut() }
     },
 
   ]
@@ -107,20 +108,14 @@ export default class HomeScreen extends React.Component {
   NavgoBack = () => {
     this.props.navigation.navigate('HomeStack')
   };
-  logOut = async() => {
-    
-    var userUid = await AsyncStorage.getItem('userToken');
+  logOut = async () => {
 
-    const dbhRealtime = firebase.database();
-    dbhRealtime.ref('users').child(userUid).remove().then(()=>{
-
-      AsyncStorage.clear('userToken');
-      this.props.navigation.navigate('Auth');
-    });
-
-
-   
+    let response = await fetch(config.apiURL + 'Logout' + '/', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', } });
+    this.props.navigation.navigate('Auth');
   };
+
+
+
 
 
   render() {
@@ -128,8 +123,8 @@ export default class HomeScreen extends React.Component {
     return (
       <View>
 
-<View style={{flexDirection:'row',margin:15}}>
-<Avatar
+        <View style={{ flexDirection: 'row', margin: 15 }}>
+          <Avatar
             source={{
               uri:
                 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
@@ -148,9 +143,9 @@ export default class HomeScreen extends React.Component {
             </View>
 
           </View>
-  <TouchableOpacity onPress={()=>{this.props.navigation.navigate('BalanceScreen')}} style={{ flexDirection: 'row', backgroundColor: '#CCC', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{this.state.userDetails.balance}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('BalanceScreen') }} style={{ flexDirection: 'row', backgroundColor: '#CCC', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{this.state.userDetails.balance}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
 
-  </View>
+        </View>
         <View>
           {
             this.list.map((item, i) => (
