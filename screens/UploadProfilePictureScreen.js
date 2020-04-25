@@ -33,30 +33,33 @@ import { ListItem } from 'react-native-elements'
 export default class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
+        this.userDetails = {};
 
     }
+
     state = {
 
     }
     static navigationOptions = ({ navigation }) => {
         return {
-          header: () => null
+            header: () => null
         }
-      }
+    }
 
     async componentDidMount() {
+        this.userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'));
         this.props.navigation.setParams({ goBack: this.NavgoBack });
 
     }
 
-  
+
 
     render() {
 
         return (
             <View style={styles.container}>
-               
-                <View style={{height: 0, backgroundColor: '#2b3138' }}></View>
+
+                <View style={{ height: 0, backgroundColor: '#2b3138' }}></View>
                 <View style={styles.header}>
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.navigate('Home')}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
@@ -69,7 +72,15 @@ export default class HomeScreen extends React.Component {
                 <View>
 
                     <ScrollView>
-                      
+                        <Avatar
+                            rounded
+                            source={{
+                                uri:
+                                    'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+                            }}
+                            title='asd'
+                        />
+                        <Text>{this.userDetails.username}</Text>
                     </ScrollView>
                 </View>
 

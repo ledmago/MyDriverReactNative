@@ -41,6 +41,7 @@ class AppInitialController extends React.Component {
       let response = await fetch(config.apiURL + 'LoginByCookie' + '/', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },});
       let json = await response.json();
       if (json.username != null) {
+        await AsyncStorage.setItem('userDetails',JSON.stringify(json));
         this.props.navigation.navigate(json.userType.userType == 'user' ? 'UploadProfilePhoto' : 'UploadProfilePhoto');
         // this.props.navigation.navigate(json.userType == 'driver' ? 'AppDriver' : 'App');
       }

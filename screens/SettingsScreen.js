@@ -102,10 +102,10 @@ export default class HomeScreen extends React.Component {
 
 
   async componentDidMount() {
-    CustomerSide_HomeController.Initial(this.props);
-    // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
-    CustomerSide_HomeController.getUserDetails().then((userdata) => { this.setState({ userDetails: userdata }); })
-    this.props.navigation.setParams({ goBack: this.NavgoBack });
+    // CustomerSide_HomeController.Initial(this.props);
+    // // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
+    // CustomerSide_HomeController.getUserDetails().then((userdata) => { this.setState({ userDetails: userdata }); })
+    // this.props.navigation.setParams({ goBack: this.NavgoBack });
 
   }
 

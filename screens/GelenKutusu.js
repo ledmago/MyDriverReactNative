@@ -127,8 +127,8 @@ export default class HomeScreen extends React.Component {
 
 
     async componentDidMount() {
-        this.chatRoomInitialize();
-        this.props.navigation.setParams({ goBack: this.NavgoBack });
+        // this.chatRoomInitialize();
+        // this.props.navigation.setParams({ goBack: this.NavgoBack });
 
     }
 

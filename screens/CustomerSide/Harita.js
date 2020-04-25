@@ -108,7 +108,7 @@ export default class HomeScreen extends React.Component {
 
   async componentDidMount() {
     // console.log(CustomerSide_StartTripController.Initial(this.props));
-    CustomerSide_HomeController.Initial(this.props)
+    // CustomerSide_HomeController.Initial(this.props)
     this.CheckLocation();
   }
 

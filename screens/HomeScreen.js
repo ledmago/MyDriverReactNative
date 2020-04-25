@@ -425,7 +425,7 @@ mapStyle= [
 
     return (
       <View style={styles.container}>
-
+{/* 
 
 
         <Modal animationType="slide"
@@ -500,9 +500,7 @@ mapStyle= [
 
 
 
-
-
-          {/* <View><Text style={styles.headerText}>Genel Bilgiler</Text></View> */}
+<View><Text style={styles.headerText}>Genel Bilgiler</Text></View> 
 
 
           <View style={styles.haritaContainer}>
@@ -540,11 +538,7 @@ mapStyle= [
           </View>
 
           <View><Text style={styles.headerText}>Yolculuk Durumu</Text>
-            {/*
-              >Tüm Yolcuları Listeleyen Kod
-            this.state.onlineUsers.map((l, i) => {
-              return <View><Text>{l.userUid}</Text></View>
-            })*/}
+    
           </View>
 
           <View style={{ marginTop: 10, paddingTop: 10, borderWidth: 2, borderStyle: 'dashed', borderColor: 'red', paddingTop: 15, paddingBottom: 15, width: 97 + '%', alignSelf: 'center', borderRadius: 4, }}>
@@ -582,7 +576,7 @@ mapStyle= [
             </View>
           </View>
 
-        </ScrollView>
+        </ScrollView> */}
 
 
       </View >
