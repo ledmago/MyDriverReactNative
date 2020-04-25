@@ -17,28 +17,24 @@ import {
     SafeAreaView,
     FlatList,
 } from 'react-native';
+import config from '../config.json';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { MonoText } from '../components/StyledText';
-import MapView from 'react-native-maps';
 import { Divider, SearchBar, Avatar, Button, Badge } from 'react-native-elements';
 import * as Font from 'expo-font';
-import * as CustomerSide_HomeController from '../Controller/CustomerSide_HomeController';
-import CreditCardComponent from '../components/CreditCardList';
-import firebase from '../components/Firebase';
-import { ListItem } from 'react-native-elements'
+import * as userRequest from '../Controller/UserRequest';
 
 export default class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
         this.userDetails = {};
-
     }
 
     state = {
-
+        profileURL: config.serverUrl + 'UserProfile/getProfilePicture/default/default',
     }
     static navigationOptions = ({ navigation }) => {
         return {
@@ -48,6 +44,9 @@ export default class HomeScreen extends React.Component {
 
     async componentDidMount() {
         this.userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'));
+        var profilePicture = await userRequest.getProfilePicture(this.userDetails.username, this.userDetails.userType);
+        console.log(profilePicture.url);
+        this.setState({ profileURL: profilePicture })
         this.props.navigation.setParams({ goBack: this.NavgoBack });
 
     }
@@ -63,7 +62,7 @@ export default class HomeScreen extends React.Component {
                 <View style={styles.header}>
                     <View style={styles.headerContainer}>
                         <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.navigate('Home')}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
-                        <Text style={styles.headerTitle}>Profil Fotoğrafı Değiştir</Text>
+                        <Text style={styles.headerTitle}>Profil Fotoğrafı</Text>
                     </View>
 
                 </View>
@@ -71,19 +70,26 @@ export default class HomeScreen extends React.Component {
 
                 <View>
 
-                    <ScrollView>
-                        <Avatar
-                            rounded
-                            source={{
-                                uri:
-                                    'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-                            }}
-                            title='asd'
-                        />
-                        <Text>{this.userDetails.username}</Text>
-                    </ScrollView>
-                </View>
+                    <View style={{ height: Dimensions.get('window').height - 135, justifyContent: 'center' }}>
+                        <View style={{ alignItems: 'center', marginTop: 10 }}>
+                            <TouchableOpacity><Avatar
 
+
+                                rounded={false}
+                                source={{
+                                    uri: this.state.profileURL
+                                }}
+                                title={this.userDetails.firstName}
+                                size={Dimensions.get('window').width}
+                                showEditButton
+                                editButton={{size:50,iconStyle:{fontSize:36},style:{margin:10},color:'#FFF'}}
+                            />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                </View>
+                <View style={{ width: 100 + '%', height: 60 }}><Button buttonStyle={{ height: 60 }} titleStyle={{ fontSize: 20 }} title='Fotoğrafı Değiştir' /></View>
 
             </View>
         );
