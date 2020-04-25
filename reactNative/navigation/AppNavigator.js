@@ -15,11 +15,13 @@ import RegisterDriver from '../screens/login/RegisterDriverScreen';
 import ChatScreen from '../screens/Chat';
 import HaritaforTripDriver from '../screens/DriverSide/HaritaforTripDriver';
 import HaritaforTripUser from '../screens/CustomerSide/HaritaforTripUser';
+import ConnectionErrorScreen from '../screens/ConnectionErrorScreen'
 const AuthScreen = createStackNavigator({ Login: LoginScreen,RegisterSplash:RegisterSplash,RegisterCustomer:RegisterCustomer,RegisterDriver:RegisterDriver});
 export default createAppContainer(
   createSwitchNavigator({
     AppInitial: AppInitialController,
     Splash:SplashPage,
+    ConnectionError:ConnectionErrorScreen,
     Auth: AuthScreen,
     App:createSwitchNavigator({
       // You could add another route here for authentication.

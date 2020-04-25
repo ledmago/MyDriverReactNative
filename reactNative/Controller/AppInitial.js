@@ -4,6 +4,7 @@ import {
   AsyncStorage,
   StatusBar,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import firebase from '../components/Firebase';
@@ -17,6 +18,7 @@ class AppInitialController extends React.Component {
 
 
     this._getLocationAsync();
+   
     this._bootstrapAsync();
 
   }
@@ -44,7 +46,8 @@ class AppInitialController extends React.Component {
         this.props.navigation.navigate('Auth');
       }
     } catch (error) {
-      return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+      // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+      this.props.navigation.navigate('ConnectionError');
     }
 
 
@@ -58,10 +61,25 @@ class AppInitialController extends React.Component {
   // Render any loading content that you like here
   render() {
     return (
-      <View>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
+      
+        
+        
+        <View style={{
+        backgroundColor: '#161a1e',
+        flex: 1,
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}><StatusBar barStyle="default" />
+        <View style={{ alignSelf: 'center', height: 20, width: 80 + '%', height: 300, justifyContent: 'center' }}>
+
+
+          {/* <Text style={{ fontSize: 15, color: '#FFC541', fontFamily: 'airbnbCereal-bold', fontSize: 28, textAlign: 'center' }}>MYDRİVER</Text> */}
+          <ActivityIndicator color='#CCC' size={50}></ActivityIndicator>
+          <Text style={{ fontSize: 15, color: '#CCC', fontFamily: 'airbnbCereal-light', fontSize: 16, marginTop: 15,textAlign:'center' }}>Yükleniyor...</Text>
+        </View>
       </View>
+    
     );
   }
 }
