@@ -1,0 +1,10 @@
+Yolculuk Bittikden Sonraki ekran yada KISIM
+Sürücü Kısmındaki arka planda eşleşme sağlandı Kısmındaki
+
+sürücü kısmında kaldığı yerden devam etme özelliği
+sürücü kısmında gelen istekleri kapa kısmı olması lazım
+
+
+İKİ KERE ÖALIYOR MELODİ
+
+haritaforTripUser.js Line : 218 HATA - Harita arka planda açıdığı için hata//  this.mapx.animateCamera({ center: Location, pitch: 50 })
