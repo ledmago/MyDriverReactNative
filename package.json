@@ -23,8 +23,11 @@
     "expo": "~36.0.0",
     "expo-asset": "~8.0.0",
     "expo-av": "~8.0.0",
+    "expo-background-fetch": "~8.0.0",
     "expo-constants": "~8.0.0",
     "expo-font": "~8.0.0",
+    "expo-media-library": "~8.0.0",
+    "expo-task-manager": "~8.0.0",
     "expo-web-browser": "~8.0.0",
     "firebase": "^7.7.0",
     "react": "~16.9.0",
@@ -47,6 +50,8 @@
     "react-native-paper": "^3.6.0",
     "react-native-parsed-text": "0.0.21",
     "react-native-phone-input": "^0.2.4",
+    "react-native-progress-bar-animated": "^1.0.6",
+    "react-native-progress-circle": "^2.1.0",
     "react-native-progress-wheel": "^1.0.4",
     "react-native-reanimated": "~1.4.0",
     "react-native-screens": "2.0.0-alpha.12",
@@ -60,8 +65,8 @@
     "react-navigation-transitions": "^1.0.12",
     "styled-components": "^5.0.1",
     "styled-components-native": "^1.0.2",
-    "expo-task-manager": "~8.0.0",
-    "expo-background-fetch": "~8.0.0"
+    "expo-image-picker": "~8.0.1",
+    "expo-image-manipulator": "~8.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

@@ -42,8 +42,8 @@ class AppInitialController extends React.Component {
       let json = await response.json();
       if (json.username != null) {
         await AsyncStorage.setItem('userDetails',JSON.stringify(json));
-        this.props.navigation.navigate(json.userType.userType == 'user' ? 'UploadProfilePhoto' : 'UploadProfilePhoto');
-        // this.props.navigation.navigate(json.userType == 'driver' ? 'AppDriver' : 'App');
+ 
+         this.props.navigation.navigate(json.userType == 'driver' ? 'AppDriver' : 'App');
       }
       else {
         this.props.navigation.navigate('Auth');

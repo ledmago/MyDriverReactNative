@@ -31,8 +31,8 @@ export const Login = async (username, password, userType) => {
     if (loginRequest) {
 
         if (loginRequest.username != null) {
-            LoginProps.navigation.navigate(loginRequest.userType == 'user' ? 'UploadProfilePhoto' : 'UploadProfilePhoto');
-            // LoginProps.navigation.navigate(loginRequest.userType == 'user' ? 'App' : 'AppDriver');
+       
+             LoginProps.navigation.navigate(loginRequest.userType == 'user' ? 'App' : 'AppDriver');
         }
         else {
             alert('Kullanıcı adı veya Email ve Şifre Uyuşmadı');

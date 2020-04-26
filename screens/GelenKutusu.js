@@ -173,7 +173,7 @@ export default class HomeScreen extends React.Component {
                 <View style={{height: 0, backgroundColor: '#2b3138' }}></View>
                 <View style={styles.header}>
                     <View style={styles.headerContainer}>
-                        <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.navigate('Home')}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
+                        <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.goBack()}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
                         <Text style={styles.headerTitle}>Mesaj Kutusu</Text>
                     </View>
 
