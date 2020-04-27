@@ -11,17 +11,35 @@ var HomeProps;
 
 export const Initial = (props) => {
 
-    HomeProps = props;
+  HomeProps = props;
 
 
 }
+export const refreshUserDetails = async () => {
+  try {
+    let response = await fetch(config.apiURL + 'LoginByCookie' + '/', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', }, });
+    let json = await response.json();
+    if (json.username != null) {
+      await AsyncStorage.setItem('userDetails', JSON.stringify(json));
 
-export const getProfilePicture = async (username,userType) => {
+      return json;
+    }
+    else {
+      return false;
+    }
+  } catch (error) {
+    // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+    return false;
+  }
 
-return config.apiURL + 'UserProfile/getProfilePicture/' + username + '/' + userType + '?twj=' + Date.now();
+}
+
+export const getProfilePicture = async (username, userType) => {
+
+  return config.apiURL + 'UserProfile/getProfilePicture/' + username + '/' + userType + '?twj=' + Date.now();
   // try { 
   //    let response = await fetch(config.apiURL + 'UserProfile/getProfilePicture/' + username + '/' + userType , { method: 'GET', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },});
-    
+
 
   // } catch (error) {
   //   // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);

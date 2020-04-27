@@ -32,14 +32,19 @@ import CreditCardComponent from '../components/CreditCardList';
 import EslestirmeComponent from '../components/Eslestirme';
 import * as userRequest from '../Controller/UserRequest';
 import config from '../config.json';
+import * as UserRequest from '../Controller/UserRequest';
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
+   this.onRefresh = this.onRefresh.bind(this);
   }
+
+
+  
+
   state = {
     profilePicture: config.apiURL + 'UserProfile/getProfilePicture/default/default',
-
 
 
 
@@ -89,11 +94,26 @@ export default class HomeScreen extends React.Component {
   };
 
 
-  onRefresh = () => {
+  onRefresh = async (showRefresh = true) => {
 
-    this.setState({ refreshing: true })
-    this.componentDidMount().then(() => this.setState({ refreshing: false }));
-    this._EslestirmeComponent.componentDidMount();
+    this.setState({ refreshing: showRefresh })
+
+   // Kullanıcı Bilgileri //
+      
+     //Datadaki İstek
+      var getuserDetailsJSON = JSON.parse(await AsyncStorage.getItem('userDetails'));
+      this.setState({userDetails:getuserDetailsJSON});
+
+      //Gerçek İstek
+      var refreshUserDetails = await UserRequest.refreshUserDetails();
+      this.setState({userDetails:refreshUserDetails});
+      // Profil Fotoğrafı Güncelleme
+      var profilePicture = await userRequest.getProfilePicture(this.state.userDetails.username, this.state.userDetails.userType);
+      this.setState({ profilePicture: profilePicture })
+      
+      
+      this.setState({ refreshing: false });
+    // this._EslestirmeComponent.componentDidMount();
   }
   static navigationOptions = ({ navigation }) => {
     return {
@@ -155,13 +175,22 @@ export default class HomeScreen extends React.Component {
     
   }*/
 
-
+componentWillUnmount() {
+    // Remove the event listener before removing the screen from the stack
+    this.focusListener.remove();
+}
 
   async componentDidMount() {
-   var getuserDetailsJSON = JSON.parse(await AsyncStorage.getItem('userDetails'));
-    this.setState({userDetails:getuserDetailsJSON})
-    var profilePicture = await userRequest.getProfilePicture(this.state.userDetails.username, this.state.userDetails.userType);
-    this.setState({ profilePicture: profilePicture })
+
+    this.onRefresh();
+
+    //Here is the Trick
+    const { navigation } = this.props;
+    //Adding an event listner om focus
+    //So whenever the screen will have focus it will set the state to zero
+    this.focusListener = navigation.addListener('didFocus', () => {
+      this.onRefresh(false);
+    });
 
     // CustomerSide_HomeController.Initial(this.props);
     // // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
@@ -448,8 +477,9 @@ export default class HomeScreen extends React.Component {
           </View>
 
           <View style={{ marginTop: 10, paddingTop: 10, borderWidth: 2, borderStyle: 'dashed', borderColor: 'red', paddingTop: 15, paddingBottom: 15, width: 97 + '%', alignSelf: 'center', borderRadius: 4, }}>
-            <EslestirmeComponent ref={(_EslestirmeComponent) => this._EslestirmeComponent = _EslestirmeComponent} propsNav={this.props.navigation} anasayfa={true}></EslestirmeComponent>
+            {/* <EslestirmeComponent ref={(_EslestirmeComponent) => this._EslestirmeComponent = _EslestirmeComponent} propsNav={this.props.navigation} anasayfa={true}></EslestirmeComponent>
             <TouchableOpacity onPress={() => this.props.navigation.navigate('EslestirmeScreen')} style={{ backgroundColor: '#CCC', marginTop: 5, paddingVertical: 10, }}><Text style={{ textAlign: 'center', fontFamily: 'airbnbCereal-light' }}>Detayları Görüntüle</Text></TouchableOpacity>
+           */}
           </View>
 
           <View style={{ marginTop: 10 }}><Text style={styles.headerText}>Ödeme Ayarları</Text></View>

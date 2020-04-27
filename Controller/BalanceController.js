@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import firebase from '../components/Firebase';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import config from '../config.json';
 
 var jsonData = null;
 var HomeProps;
@@ -78,42 +79,26 @@ export const UpdateBalanceDriver = async(amount) =>
         });
 }
 
-export const usePromotionCode = async (Code) => {
+export const usePromotionCode = async (code) => {
    
-    const db = firebase.firestore();
-    db.collection("promotionCodes").where("Code", "==", Code)
-    .get()
-    .then(function(querySnapshot) {
-        querySnapshot.forEach(async function(doc) {
-           
-            // Kod Doğru
-            if(doc.data().used == false)
-            {
-
-                var userUid = await AsyncStorage.getItem('userToken');
-                const dbh = firebase.firestore();
-                console.log(doc.id)
-                const codeRef = await dbh.collection('promotionCodes').doc(doc.id)
-                codeRef.update({
-                  used:true,
-                  who:userUid,
-                })
-                
-                UpdateBalance(userUid,doc.data().amount);
-                addLogs({cardNumber:'Yatan : Promosyon Kodu',date: new Date().toISOString().slice(0,10),amount:doc.data().amount + ' TL'})
-                alert(doc.data().amount + ' TL Hesabınıza Yüklendi')
-
-            }
-            else{alert('Bu Promosyon Kodu Daha Önceden Kullanılmış Zaten')}
-
-           
-            
+    try {
+        let response = await fetch(config.apiURL + 'PromotionCode/usePromotionCode', {
+            method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },
+            body: JSON.stringify({
+               code:code
+            }),
         });
-    })
-    .catch((e)=>{alert('Hatalı Promosyon Kodu' + e);})
+        var json = await response.json();
+        if (json.status == 'ok') { return true; } else { return false; }
 
+    } catch (error) {
 
-};
+        // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+        return false;
+    }
+
+}
+
 export const addLogs = async (formData) => {
 
     return new Promise(async (resolve, reject) => {
@@ -189,35 +174,19 @@ export const addLogs = async (formData) => {
 }
 
 export const getLogDetails = async () => {
+    
+    try {
+        let response = await fetch(config.apiURL + 'userProfile/getPaymentLog', {
+            method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },
+            
+        });
+        var json = await response.json();
+        if (json.status == 'ok') { return json.paymentLog; } else { return false; }
 
-    return new Promise(async (resolve, reject) => {
+    } catch (error) {
 
-        var userUid = await AsyncStorage.getItem('userToken');
-
-        // Var Olan kredi Kartlarini Çek
-        const dbh2 = firebase.firestore();
-        const usersRef = await dbh2.collection('paymentLogs').doc(userUid)
-        usersRef.get()
-            .then((docSnapshot) => {
-
-                if (docSnapshot.exists) {
-                    var LogsArray = docSnapshot.data().logs;
-                    if(docSnapshot.data().logs != undefined)
-                    { resolve(LogsArray);}
-                    else
-                    {
-                        resolve('error');
-                    }
-                    
-                    
-                }
-                else
-                {
-                    resolve('error');
-                }
-               
-
-            }).catch((e)=>alert(e));
-    });
+        // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+        return false;
+    }
 
 }
