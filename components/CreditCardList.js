@@ -36,29 +36,31 @@ export default class CreditCardComponent extends React.Component {
 
 
 
-    componentDidMount() {
-        CreditCardController.getCreditCard().then((e) => {
+    async componentDidMount() {
+        var creditCardList = await CreditCardController.getCreditCard()
+        this.setState({ userCreditCardList: creditCardList });
+        // .then((e) => {
 
-            if (this.props.anasayfa)
-            {
-                this.setState({ userCards: e });
-            }
-                
-            else
-            this.setState({ userCards: e });
+        //     if (this.props.anasayfa)
+        //     {
+        //         this.setState({ userCards: e });
+        //     }
+
+        //     else
+        //     this.setState({ userCards: e });
 
 
-        });
+        // });
 
 
     }
     state = {
         modal2Values: [],
         modal2Value: 0,
-        userCards: [],
+        userCreditCardList: [],
         Modal2Open: false,
         Modal1Open: false,
-        deleteButtonLoading:false,
+        deleteButtonLoading: false,
         form: {
             valid: null, // will be true once all fields are "valid" (time to enable the submit button)
             values: { // will be in the sanitized and formatted form
@@ -107,7 +109,12 @@ export default class CreditCardComponent extends React.Component {
 
                             <View style={{ marginTop: 100 }}>
                                 <CreditCardInput requiresName={true} onChange={this._onChange} />
-                                <Button disabled={!this.state.form.valid} onPress={() => CreditCardController.addCreditCard(this.state.form).then((e) => { if (e == 'eklendi') { this.setState({ Modal1Open: false }); this.componentDidMount()} })} title='Ekle' containerStyle={{ marginTop: 40, width: 90 + '%', alignSelf: 'center' }} />
+                                <Button disabled={!this.state.form.valid} onPress={async () => {
+
+                                    let result = await CreditCardController.addCreditCard(this.state.form)
+                                    if (result) { this.setState({ Modal1Open: false }); this.componentDidMount() }
+                                   
+                                }} title='Ekle' containerStyle={{ marginTop: 40, width: 90 + '%', alignSelf: 'center' }} />
                             </View>
                         </View>
                     </View>
@@ -136,13 +143,20 @@ export default class CreditCardComponent extends React.Component {
                             </TouchableOpacity>
 
                             <View style={{ marginTop: 100 }}>
+                                <Image style={{ width: 120, height: 120, alignSelf: 'center', marginBottom: 20 }} source={require('../assets/images/creditcard.png')} />
+                                <Text style={{ fontWeight: 'bold' }}>Kart Sahibinin İsmi : {this.state.modal2Values.placeHolder}</Text>
+                                <Text style={{ fontWeight: 'bold' }}>Kart Numarası : {String(this.state.modal2Values.cardNumber).substr(0, 4)} {String(this.state.modal2Values.cardNumber).substr(4, 4)} {String(this.state.modal2Values.cardNumber).substr(8, 4)} {String(this.state.modal2Values.cardNumber).substr(12, 4)}</Text>
+                                <Text style={{ fontWeight: 'bold' }}>Kart Geçerlilik Tarihi : {this.state.modal2Values.expireDate}</Text>
+                                <Text style={{ fontWeight: 'bold' }}>Kart CVC : {String(this.state.modal2Values.cc).substr(0, 1)}**</Text>
 
-                                <Text>Kart Sahibinin İsmi : {this.state.modal2Values.name}</Text>
-                                <Text>Kart Numarası : {this.state.modal2Values.number}</Text>
-                                <Text>Kart Geçerlilik Tarihi : {this.state.modal2Values.expiry}</Text>
-                                <Text>Kart CVC : {this.state.modal2Values.cvc}</Text>
-
-                                <Button loading={this.state.deleteButtonLoading} onPress={() => CreditCardController.deleteCreditCard(this.state.modal2Value).then((e) => {this.setState({deleteButtonLoading:true}); if (e == 'silindi') { this.setState({ Modal1Open: false,Modal2Open:false });this.componentDidMount() } })} title='Kartı Sil' containerStyle={{ marginTop: 40, width: 90 + '%', alignSelf: 'center' }} />
+                                <Button loading={this.state.deleteButtonLoading} onPress={async () => 
+                                    {
+                                        let result = await CreditCardController.deleteCreditCard(this.state.modal2Values.cardNumber);
+                                        if(result){this.setState({modal2Values:{},Modal2Open:false}); this.componentDidMount()}
+                                        //CreditCardController.deleteCreditCard(this.state.modal2Value).then((e) => { this.setState({ deleteButtonLoading: true }); if (e == 'silindi') { this.setState({ Modal1Open: false, Modal2Open: false }); this.componentDidMount() } })
+                                    } 
+                                }
+                                    title='Kartı Sil' containerStyle={{ marginTop: 40, width: 90 + '%', alignSelf: 'center' }} />
                             </View>
                         </View>
                     </View>
@@ -155,22 +169,23 @@ export default class CreditCardComponent extends React.Component {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: 100 + '%' }}>
 
-                    {this.state.userCards.length > 0 && <FlatGrid
-                        items={this.state.userCards}
-                        extraData={this.state.userCards}
+                    {this.state.userCreditCardList.length > 0 && <FlatGrid
+                        items={this.state.userCreditCardList}
+                        extraData={this.state.userCreditCardList}
                         renderItem={({ item, index }) => (
-                            <TouchableOpacity onPress={() => { this.setState({ modal2Value: index, modal2Values: this.state.userCards[0], Modal2Open: true }); }} style={{ width: 100 + '%', marginBottom: 10, marginRight: 1 + '%', padding: 8, backgroundColor: '#FFF', backgroundColor: '#DD4B4E', borderRadius: 4, borderColor: 'red', borderWidth: 1, justifyContent: 'center' }}>
-                                <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', fontSize: 17, textAlign: 'center', marginBottom: 7 }}>{item.type.toUpperCase()} ({item.expiry})</Text>
-                                <Image style={{ width: 70, height: 70, alignSelf: 'center' }} source={require('../assets/images/creditcard.png')} />
-                                <Text style={{ fontFamily: 'airbnbCereal-light', marginTop: 5, fontSize: 16, color: '#EBEBEB', textAlign: 'center', marginTop: 10, marginBottom: 5 }}>{item.number.substr(0, 4)} **** **** {item.number.substr(item.number.length - 4, 4)}</Text>
+                            <TouchableOpacity onPress={() => { this.setState({ modal2Value: index, modal2Values: this.state.userCreditCardList[index], Modal2Open: true }); }} style={{ width: 100 + '%', marginBottom: 10, padding: 8, backgroundColor: '#FFF', backgroundColor: '#DD4B4E', borderRadius: 4, borderColor: 'red', borderWidth: 1, justifyContent: 'center' }}>
+                                <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', fontSize: 17, textAlign: 'center', marginBottom: 7 }}>{item.placeHolder.toUpperCase()}</Text>
+                                <Image style={{ width: 50, height: 50, alignSelf: 'center' }} source={require('../assets/images/creditcard.png')} />
+                                <Text style={{ fontFamily: 'airbnbCereal-light', marginTop: 5, fontSize: 15, color: '#EBEBEB', textAlign: 'center', marginTop: 10 }}>{String(item.cardNumber).substr(0, 4)} **** **** {String(item.cardNumber).substr(String(item.cardNumber).length - 4, 4)}</Text>
+                                <Text style={{ fontFamily: 'airbnbCereal-light', marginTop: 5, fontSize: 15, color: '#EBEBEB', textAlign: 'center', marginBottom: 5 }}>{item.expireDate}</Text>
                             </TouchableOpacity>
 
                         )}
                     />
                     }
 
-                    {this.state.userCards.length < 1 &&
-                        <TouchableOpacity onPress={() => { this.setState({ modal2Value: index, modal2Values: this.state.userCards[0], Modal2Open: true }); }} style={{ width: 50 + '%', marginBottom: 10, marginTop: -7, marginLeft: 1 + '%', padding: 8, backgroundColor: '#FFF', backgroundColor: '#DD4B4E', borderRadius: 4, borderColor: 'red', borderWidth: 1, justifyContent: 'center' }}>
+                    {this.state.userCreditCardList.length < 1 &&
+                        <TouchableOpacity style={{ width: 50 + '%', marginBottom: 10, marginTop: -7, marginLeft: 1 + '%', padding: 8, backgroundColor: '#FFF', backgroundColor: '#DD4B4E', borderRadius: 4, borderColor: 'red', borderWidth: 1, justifyContent: 'center' }}>
                             <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', fontSize: 17, textAlign: 'center', marginBottom: 7 }}>Kart Eklenmemiş</Text>
                             <Image style={{ width: 70, height: 70, alignSelf: 'center' }} source={require('../assets/images/creditcard.png')} />
                             <Text style={{ fontFamily: 'airbnbCereal-light', marginTop: 5, fontSize: 16, color: '#EBEBEB', textAlign: 'center', marginTop: 10, marginBottom: 5 }}>Tanımlı kredi kartı yok</Text>
