@@ -16,68 +16,6 @@ export const Initial = (props) => {
 
 
 }
-export const reduceBalance = async(amount) =>
-{
-    
-    var userUid = await AsyncStorage.getItem('userToken');
-    const dbh2 = firebase.firestore();
-    const usersRef = await dbh2.collection('users').doc(userUid)
-    usersRef.get()
-        .then(async (docSnapshot) => {
-
-            if (docSnapshot.exists) {
-                var Oldbalance = docSnapshot.data().balance;
-
-                
-                const dbh = firebase.firestore();
-                const codeRef = await dbh.collection('users').doc(userUid)
-                codeRef.update({
-               balance : parseFloat(Oldbalance) + parseFloat(amount)
-                })
-            }
-        });
-}
-
-export const UpdateBalance = async(userUid2='',amount) =>
-{
-    const dbh2 = firebase.firestore();
-    var userUid = await AsyncStorage.getItem('userToken');
-    const usersRef = await dbh2.collection('users').doc(userUid)
-    usersRef.get()
-        .then(async (docSnapshot) => {
-
-            if (docSnapshot.exists) {
-                var Oldbalance = docSnapshot.data().balance;
-
-                
-                const dbh = firebase.firestore();
-                const codeRef = await dbh.collection('users').doc(userUid)
-                codeRef.update({
-               balance : parseFloat(Oldbalance) + parseFloat(amount)
-                })
-            }
-        });
-}
-export const UpdateBalanceDriver = async(amount) =>
-{
-    const dbh2 = firebase.firestore();
-    var userUid = await AsyncStorage.getItem('userToken');
-    const usersRef = await dbh2.collection('drivers').doc(userUid)
-    usersRef.get()
-        .then(async (docSnapshot) => {
-
-            if (docSnapshot.exists) {
-                var Oldbalance = docSnapshot.data().balance;
-
-                
-                const dbh = firebase.firestore();
-                const codeRef = await dbh.collection('drivers').doc(userUid)
-                codeRef.update({
-               balance : parseFloat(Oldbalance) + parseFloat(amount)
-                })
-            }
-        });
-}
 
 export const usePromotionCode = async (code) => {
    
@@ -99,80 +37,6 @@ export const usePromotionCode = async (code) => {
 
 }
 
-export const addLogs = async (formData) => {
-
-    return new Promise(async (resolve, reject) => {
-
-
-        var userUid = await AsyncStorage.getItem('userToken');
-
-        // Var Olan kredi Kartlarini Çek
-        const dbh2 = firebase.firestore();
-        const usersRef = await dbh2.collection('paymentLogs').doc(userUid)
-        usersRef.get()
-            .then((docSnapshot) => {
-
-                if (docSnapshot.exists) {
-                    var LogsArray = docSnapshot.data().logs;
-
-                    if(LogsArray == undefined)
-                    {
-                        LogsArray = [];
-                    }
-
-
-                    // Yeni Kredi Kartını Array'e ekle
-                    LogsArray.push({
-                        cardNumber: formData.cardNumber,
-                        date: formData.date,
-                        amount: formData.amount,
-                      
-                    });
-
-                    const dbh = firebase.firestore();
-                    dbh.collection("paymentLogs").doc(userUid).set({
-                        logs: LogsArray,
-                    }).then(() => {
-                       // alert('Başarıyla Eklendi')
-
-                    });
-
-
-
-
-
-
-
-                }
-                else {
-                    const dbh = firebase.firestore();
-                    dbh.collection("paymentLogs").doc(userUid).set({
-                        logs: [{
-                            cardNumber: formData.cardNumber,
-                            date: formData.date,
-                            amount: formData.amount,
-                        }]
-                    }).then(() => {
-
-                        resolve('eklendi')
-                    });
-                }
-
-
-            }).catch((e) => {
-
-                alert(e)
-
-            });
-
-
-
-
-
-    });
-
-}
-
 export const getLogDetails = async () => {
     
     try {
@@ -181,6 +45,11 @@ export const getLogDetails = async () => {
             
         });
         var json = await response.json();
+        json.paymentLog.map((item => {
+            var formattedDate = new Date(item.date);
+            item.formattedDate = formattedDate.getDate() + '/' + (formattedDate.getMonth() + 1) + '/' + formattedDate.getFullYear() + ' (' + formattedDate.getHours() + ':' + formattedDate.getMinutes() + ')';
+        }))
+       
         if (json.status == 'ok') { return json.paymentLog; } else { return false; }
 
     } catch (error) {
