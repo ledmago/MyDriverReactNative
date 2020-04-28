@@ -25,10 +25,10 @@ import { MonoText } from '../components/StyledText';
 import MapView from 'react-native-maps';
 import { Divider, SearchBar, Avatar, Button, Badge } from 'react-native-elements';
 import * as Font from 'expo-font';
-import * as CustomerSide_HomeController from '../Controller/CustomerSide_HomeController';
+import * as MesajController from '../Controller/MesajController';
 import CreditCardComponent from '../components/CreditCardList';
 import firebase from '../components/Firebase';
-import { ListItem } from 'react-native-elements'
+import { ListItem } from 'react-native-elements';
 
 export default class HomeScreen extends React.Component {
     constructor(props) {
@@ -36,83 +36,21 @@ export default class HomeScreen extends React.Component {
 
     }
     state = {
-
+       gelenKutusuList:[
+           {
+            
+                username: '',
+                unreadedCount: 0
+            
+           }
+       ],
     }
     
-
-    addNewItemToStorage = async(tripID,newItem) => 
-    {
-        var tempChatRooms = JSON.parse(await AsyncStorage.getItem('chatRooms'));
-        var isFind = false;
-        tempChatRooms.map((item) => {
-            if(item.id == tripID){isFind = true}
-        })
-        if(isFind == false)
-        {
-            tempChatRooms.push(newItem);
-            await AsyncStorage.setItem(JSON.stringify(tempChatRooms));
-        }
-    }
-
-    addCurrentChat = async(ifExist) =>{
-        var userUid = await AsyncStorage.getItem('userToken');
-        const dbhRealtime = firebase.database();
-
-        dbhRealtime.ref('tripDatabase').orderByChild('who').equalTo(userUid).once('value', async(e) => {
-            if (e.exists && e.val() != null) {
-                var snapshot = Object.keys(e.val()).map(i => e.val()[i])
-
-                const newItem = {
-                    name:snapshot[0].name,
-                    avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-                    subtitle:'Yolculuk Mesajlaşması',
-                    id:snapshot[0].tripID,
-                    user:snapshot[0].from,
-                };
-               
-
-                if(ifExist)
-                {
-                   
-                    this.addNewItemToStorage(snapshot[0].tripID,newItem);
-
-                }
-                else{
-                    await AsyncStorage.setItem('chatRooms',JSON.stringify(newItem))
-                    this.list.push(newItem);
-                }
-               
-
-            }
-          
-        });
-    }
-    
-    chatRoomVar = async(chatRoom)=>{
-      
-    
-         this.list.push(chatRoom);
    
-     this.addCurrentChat(true);
-    }
 
-    chatRoomYok = async()=>{
-     this.addCurrentChat(false);
-    }
+   
+
   
-   chatRoomInitialize = async() =>
-   {
-     //  this.list = []; // Clear list variable
-     
-    const chatRooms = await AsyncStorage.getItem('chatRooms');
-    if(chatRooms){
-       this.chatRoomVar(JSON.parse(chatRooms))
-       
-    }else{
-        this.chatRoomYok()
-    }
-       
-   }
 
     list = [
         {
@@ -127,8 +65,8 @@ export default class HomeScreen extends React.Component {
 
 
     async componentDidMount() {
-        // this.chatRoomInitialize();
-        // this.props.navigation.setParams({ goBack: this.NavgoBack });
+        var gelenKutusu = await MesajController.getGelenKutusu();
+       this.setState({gelenKutusuList:gelenKutusu});
 
     }
 
@@ -145,14 +83,17 @@ export default class HomeScreen extends React.Component {
         if(item.name != '')
         {
         return (
-            <TouchableOpacity onPress={async()=>{await AsyncStorage.removeItem('ChatID').then(async () => { await AsyncStorage.setItem('ChatID', '' + item.id).then(() => { this.props.navigation.navigate('ChatScreen') }) }) }}><ListItem
+            <TouchableOpacity 
+            // onPress={async()=>{await AsyncStorage.removeItem('ChatID').then(async () => { await AsyncStorage.setItem('ChatID', '' + item.username).then(() => { this.props.navigation.navigate('ChatScreen') }) }) }}
+            >
+                <ListItem
                     containerStyle={styles.listItemContainer}
                     titleStyle={{ color: '#CCC' }}
                     subtitleStyle={{ color: '#CCC' }}
         
-                    title={item.name}
-                    subtitle={item.subtitle}
-                    leftAvatar={{ source: { uri: item.avatar_url } }}
+                    title={item.username}
+                    subtitle={item.unreadedCount}
+                    // leftAvatar={{ source: { uri: item.avatar_url } }}
         
                     chevron
                 />
@@ -186,8 +127,8 @@ export default class HomeScreen extends React.Component {
                         <FlatList
                             keyExtractor={this.keyExtractor}
                          
-                            extraData={this.list}
-                            data={this.list}
+                            extraData={this.state.gelenKutusuList}
+                            data={this.state.gelenKutusuList}
                             renderItem={this.renderItem}
                         />
                     </ScrollView>

@@ -27,6 +27,7 @@ import * as Font from 'expo-font';
 import * as CustomerSide_HomeController from '../Controller/CustomerSide_HomeController';
 import CreditCardComponent from '../components/CreditCardList';
 import firebase from '../components/Firebase';
+import config from '../config.json';
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
@@ -82,31 +83,12 @@ export default class HomeScreen extends React.Component {
 
   ]
 
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: 'Yolculuk Durumu',
-      headerLeft: () => (
-        <TouchableOpacity
-          style={{ marginLeft: 20 }}
-          onPress={navigation.getParam('goBack')}
-          title="Info"
-          color="#fff"
-        ><Ionicons name="ios-arrow-back" size={35} color="#444" /></TouchableOpacity>
-
-
-      ),
-    };
-  };
 
 
 
 
   async componentDidMount() {
-    // CustomerSide_HomeController.Initial(this.props);
-    // // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
-    // CustomerSide_HomeController.getUserDetails().then((userdata) => { this.setState({ userDetails: userdata }); })
-    // this.props.navigation.setParams({ goBack: this.NavgoBack });
-
+   
   }
 
 
@@ -116,48 +98,34 @@ export default class HomeScreen extends React.Component {
   logOut = async () => {
 
     let response = await fetch(config.apiURL + 'Logout' + '/', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', } });
+    await AsyncStorage.removeItem('userHash');
     this.props.navigation.navigate('Auth');
   };
 
   render() {
 
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ height: StatusBar.currentHeight, backgroundColor: '#2b3138' }}></View>
-        <View style={{ flexDirection: 'row', margin: 15 }}>
-          <Avatar
-            source={{
-              uri:
-                'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-            }}
-            showEditButton
-            rounded={true}
-            size={60}
-            containerStyle={{ borderWidth: 1, borderColor: '#CCC', marginTop: 3, }}
-          />
-          <View style={{ marginLeft: 15, width: Dimensions.get('screen').width - 200, }}>
-            <Text style={{ fontFamily: 'airbnbCereal-medium', color: '#444', fontSize: 21, }}>{this.state.userDetails.name}</Text>
-            <View style={{ flexDirection: 'row' }}>
-              <View style={{ width: 12, height: 12, backgroundColor: 'green', borderRadius: 12 / 2, marginTop: 3, }}></View>
-              <Text style={{ marginLeft: 5, marginRight: 5, fontFamily: 'airbnbCereal-light', color: 'green' }}>Online</Text>
-              <Text style={{ marginLeft: 5, marginRight: 5, fontFamily: 'airbnbCereal-light', color: '#333' }}>Yolcu</Text>
-            </View>
+      <SafeAreaView style={{ flex: 1,backgroundColor:'#161a1e'}}>
+        <View style={styles.header}>
+                    <View style={styles.headerContainer}>
+                        <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.pop()}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
+                        <Text style={styles.headerTitle}>Ayarlar</Text>
+                    </View>
 
-          </View>
-          <TouchableOpacity onPress={() => { this.props.navigation.navigate('BalanceScreen') }} style={{ flexDirection: 'row', backgroundColor: '#CCC', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{this.state.userDetails.balance}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
-
-        </View>
+                </View>
+       
         <View>
           {
             this.list.map((item, i) => (
               <TouchableOpacity >
                 <ListItem
+                  containerStyle={{backgroundColor:'#161a1e'}}
+                  titleStyle={{color:'#FFF'}}
                   key={i}
                   title={item.title}
-                  leftIcon={{ name: item.icon }}
+                  leftIcon={{ name: item.icon,color:'#FFF' }}
                   bottomDivider
                   chevron
-                  style={{ backgroundColor: '#666' }}
                   friction={90} //
                   tension={100} // These props are passed to the parent component (here TouchableScale)
                   activeScale={0.95} //
@@ -177,3 +145,28 @@ export default class HomeScreen extends React.Component {
 
 
 };
+const styles = StyleSheet.create({
+
+  header: {
+      width: 100 + '%',
+      backgroundColor: '#2b3138',
+      height: 83,
+      alignContent: 'center',
+      justifyContent: 'center',
+      paddingLeft: 10
+
+  },
+  headerContainer: {
+      flexDirection: 'row',
+
+  },
+  headerTitle: {
+      fontSize: 20,
+      paddingLeft: 25,
+      textAlignVertical: 'center',
+      color: '#CCC',
+      textAlign: 'left',
+      fontFamily: 'airbnbCereal-medium',
+  },
+  
+});
