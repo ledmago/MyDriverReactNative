@@ -34,9 +34,10 @@ export const refreshUserDetails = async () => {
 
 }
 
-export const getProfilePicture = async (username, userType) => {
-
-  return config.apiURL + 'UserProfile/getProfilePicture/' + username + '/' + userType + '?twj=' + Date.now();
+export const getProfilePicture = async (username, userType,reload = false) => {
+  var reloadstatus = reload == true?Date.now():'';
+  return config.apiURL + 'UserProfile/getProfilePicture/' + username + '/' + userType + '?twj=' + reloadstatus;
+  
   // try { 
   //    let response = await fetch(config.apiURL + 'UserProfile/getProfilePicture/' + username + '/' + userType , { method: 'GET', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },});
 

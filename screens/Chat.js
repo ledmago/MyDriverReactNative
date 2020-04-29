@@ -18,43 +18,41 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import firebase from '../components/Firebase';
+import * as MessageController from '../Controller/MesajController';
 
 export default class Example extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+ chatDetails = {
+   username: this.props.navigation.state.params.username,
+   profilePicture:this.props.navigation.state.params.profilePicture,
+   firstName:this.props.navigation.state.params.firstName,
+   lastName:this.props.navigation.state.params.lastName,
+  };
   state = {
     okunmayanMesaj: 0,
     userUid: '',
     messages: [
-      // {
-      //   _id: 1,
-      //   text: 'Hello developers',
-      //   createdAt: new Date(),
-      //   user: {
-      //     _id: 21,
-      //     name: 'React Native',
-      //     avatar: 'https://placeimg.com/140/140/any',
-      //   },
-      // },
+      {
+        _id: 1,
+        text: 'Hello developers',
+        createdAt: new Date(),
+        user: {
+          _id: 21,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
     ],
   }
+  
   static navigationOptions = ({ navigation }) => {
     return {
-      title: 'Yolculuk Durumu',
-      headerLeft: () => (
-        <TouchableOpacity
-          style={{ marginLeft: 20 }}
-          onPress={navigation.getParam('goBack')}
-          title="Info"
-          color="#fff"
-        ><Ionicons name="ios-arrow-back" size={35} color="#444" /></TouchableOpacity>
+        header: () => null
+    }
+}
 
-
-      ),
-    };
-  };
-  NavgoBack = async () => {
-    this.props.navigation.navigate('Main')
-
-  };
 
   setUnreadMessages = async(tripID) => {
     var userUid = await AsyncStorage.getItem('userToken');
@@ -93,11 +91,29 @@ export default class Example extends React.Component {
 
   }
   async componentDidMount() {
-    var userUid = await AsyncStorage.getItem('userToken');
-    this.setState({ userUid: userUid });
-    this.props.navigation.setParams({ goBack: this.NavgoBack });
-    this.getMessages(await AsyncStorage.getItem('ChatID'))
-    this.setUnreadMessages(await AsyncStorage.getItem('ChatID'))
+ var allMessagelist = await MessageController.getAllMessages(this.chatDetails.username);
+ var convertMessages = [];
+ allMessagelist.map((item)=>{
+  convertMessages.push({
+    _id: item.id,
+    text: item.message,
+    createdAt: new Date(),
+    user: {
+      _id: 21,
+      name: item.name,
+      avatar: this.chatDetails.profilePicture,
+    },
+
+  })
+
+ })
+ this.setState({messages:convertMessages})
+
+    // var userUid = await AsyncStorage.getItem('userToken');
+    // this.setState({ userUid: userUid });
+    // this.props.navigation.setParams({ goBack: this.NavgoBack });
+    // this.getMessages(await AsyncStorage.getItem('ChatID'))
+    // this.setUnreadMessages(await AsyncStorage.getItem('ChatID'))
 
 
   }
@@ -115,7 +131,19 @@ export default class Example extends React.Component {
 
   render() {
     return (
-      <GiftedChat
+    
+        <View style={styles.container}>
+           
+            <View style={styles.header}>
+                <View style={styles.headerContainer}>
+                    <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.pop()}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
+                    <Text style={styles.headerTitle}>{this.chatDetails.firstName} {this.chatDetails.lastName}</Text>
+                </View>
+
+            </View>
+
+
+            <GiftedChat
         placeholder='Mesaj Yazın'
         messages={this.state.messages}
         onSend={messages => this.onSend(messages)}
@@ -123,7 +151,43 @@ export default class Example extends React.Component {
           _id: this.state.userUid,
           avatar: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg'
         }}
-      />
+      />  
+
+     
+      </View>
     )
   }
 }
+const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      backgroundColor: '#202329',
+
+  },
+  header: {
+      width: 100 + '%',
+      backgroundColor: '#2b3138',
+      height: 83,
+      alignContent: 'center',
+      justifyContent: 'center',
+      paddingLeft: 10
+
+  },
+  headerContainer: {
+      flexDirection: 'row',
+
+  },
+  headerTitle: {
+      fontSize: 20,
+      paddingLeft: 25,
+      textAlignVertical: 'center',
+      color: '#CCC',
+      textAlign: 'left',
+      fontFamily: 'airbnbCereal-medium',
+  },
+  listItemContainer: {
+      backgroundColor: '#202329',
+      borderBottomWidth: 0.5,
+      borderBottomColor: '#000'
+  }
+});

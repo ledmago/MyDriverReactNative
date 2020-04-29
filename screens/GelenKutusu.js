@@ -64,9 +64,21 @@ export default class HomeScreen extends React.Component {
 
 
 
+    componentWillUnmount() {
+        // Remove the event listener before removing the screen from the stack
+        this.focusListener.remove();
+    }
+
+
     async componentDidMount() {
         var gelenKutusu = await MesajController.getGelenKutusu();
        this.setState({gelenKutusuList:gelenKutusu});
+
+       // Sayfaya her gelişinde yenilenmesini sağlıyor
+       const { navigation } = this.props;
+       this.focusListener = navigation.addListener('didFocus', () => {
+        this.componentDidMount();
+      });
 
     }
 
@@ -80,21 +92,22 @@ export default class HomeScreen extends React.Component {
     keyExtractor = (item, index) => index.toString();
 
     renderItem = ({ item }) => {
-        if(item.name != '')
+        if(item.username != '')
         {
         return (
             <TouchableOpacity 
-            // onPress={async()=>{await AsyncStorage.removeItem('ChatID').then(async () => { await AsyncStorage.setItem('ChatID', '' + item.username).then(() => { this.props.navigation.navigate('ChatScreen') }) }) }}
+             onPress={async()=>{this.props.navigation.navigate('ChatScreen',{username:item.username,profilePicture:item.profilePicture,firstName:item.firstName,lastName:item.lastName})}}
             >
                 <ListItem
+                
                     containerStyle={styles.listItemContainer}
                     titleStyle={{ color: '#CCC' }}
                     subtitleStyle={{ color: '#CCC' }}
         
-                    title={item.username}
-                    subtitle={item.unreadedCount}
-                    // leftAvatar={{ source: { uri: item.avatar_url } }}
-        
+                    title={item.firstName + ' ' + item.lastName}
+                    subtitle={item.lastSender == 'self' ? 'Siz : ' +  item.lastMessage.message : item.lastMessage.message}
+                    leftAvatar={{ source: { uri: item.profilePicture } }}
+                    badge={item.unreadedCount > 0 ? { value: item.unreadedCount, textStyle: { color: '#111',fontWeight:'bold' },status:'success',badgeStyle:{height:25,width:25,borderWidth:0,borderRadius:25/2,backgroundColor:'#00c853'}}:false}
                     chevron
                 />
                 </TouchableOpacity>
