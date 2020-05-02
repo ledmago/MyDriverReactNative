@@ -18,6 +18,7 @@ import HaritaforTripDriver from '../screens/DriverSide/HaritaforTripDriver';
 import HaritaforTripUser from '../screens/CustomerSide/HaritaforTripUser';
 import ConnectionErrorScreen from '../screens/ConnectionErrorScreen';
 import UploadProfilePhotoScreen from '../screens/UploadProfilePictureScreen';
+import StartTrip from '../screens/CustomerSide/StartTripScreen';
 const AuthScreen = createStackNavigator({ Login: LoginScreen, RegisterSplash: RegisterSplash, RegisterCustomer: RegisterCustomer, RegisterDriver: RegisterDriver });
 export default createAppContainer(
   createSwitchNavigator({
@@ -36,6 +37,7 @@ export default createAppContainer(
       ChatScreen: createStackNavigator({ ChatScreen: ChatScreen }),
       HaritaforTripUser: createStackNavigator({ HaritaforTripUser: HaritaforTripUser }),
       UploadProfilePhoto:createStackNavigator({UploadProfilePhoto:UploadProfilePhotoScreen}),
+      StartTrip:createStackNavigator({StartTrip:StartTrip}),
     },
       {
         transitionConfig: () => fromRight(),

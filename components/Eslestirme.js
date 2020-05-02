@@ -41,11 +41,19 @@ export default class EslestirmeComponent extends React.Component {
   _ISTEKTIME = 20;
 
   state = {
+
+    IsCurrentTrip: false,
+    curerntTrip: {},
+
+
+
+
+
+
     aktifMi: null,
-    values: {},
     durdur: false,
     eslesmeSecond: 20,
-    driverDetails: {aracPlaka:'Plaka Bulunmadı'},
+    driverDetails: { aracPlaka: 'Plaka Bulunmadı' },
     surucuDurumText: '',
     okunmayanMesaj: 0,
     istekGonderilenDriverID: '',
@@ -90,7 +98,7 @@ export default class EslestirmeComponent extends React.Component {
   intervalsxD = null;
   EslesmeSaglandi = async () => {
     this.setState({ eslesmeSecond: 20 })
-    this.intervalsxD = setInterval(() => { if (this.state.values.durum != 2) { this.durdurHersey() } Vibration.vibrate(1000) }, 2000);
+    this.intervalsxD = setInterval(() => { if (this.state.currentTrip.status != 2) { this.durdurHersey() } Vibration.vibrate(1000) }, 2000);
 
 
     try {
@@ -116,7 +124,7 @@ export default class EslestirmeComponent extends React.Component {
       // Burada en yakındaki online driver'ı bulup ona istek atacak.
       var DriversArray = [];
 
-      var getOnlineDrivers = firebase.database().ref('drivers').orderByChild('lat').startAt(this.state.values.userLat - 0.05).once('value', async (e) => {
+      var getOnlineDrivers = firebase.database().ref('drivers').orderByChild('lat').startAt(this.state.currentTrip.userLat - 0.05).once('value', async (e) => {
 
 
 
@@ -132,8 +140,8 @@ export default class EslestirmeComponent extends React.Component {
 
 
           DriversArray.map((e) => {
-            e.latFark = Math.abs(e.lat - this.state.values.userLat)
-            e.longFark = Math.abs(e.long - this.state.values.userLong)
+            e.latFark = Math.abs(e.lat - this.state.currentTrip.userLat)
+            e.longFark = Math.abs(e.long - this.state.currentTrip.userLong)
           });
 
           DriversArray.sort((a, b) => a.latFark - b.latFark || a.longFark - b.longFark);
@@ -253,7 +261,7 @@ export default class EslestirmeComponent extends React.Component {
         )
 
         var driverSet = firebase.database().ref('driverIstek').child(YakinDriversArray[LastDriver].userUid).update({
-          yolcuID: this.state.values.from
+          yolcuID: this.state.currentTrip.from
         });
 
 
@@ -326,90 +334,96 @@ export default class EslestirmeComponent extends React.Component {
 
     //  this.ListenFinishTrip();
 
-    try {
-      await this.soundObject.loadAsync(require('../assets/eslesmeSesi.mp3'));
-      await this.soundObject.setStatusAsync({ volume: 1.0 });
-      await this.soundObject.setVolumeAsync(1.0);
-      await this.soundObject.setIsLoopingAsync(true);
+    // try {
+    //   await this.soundObject.loadAsync(require('../assets/eslesmeSesi.mp3'));
+    //   await this.soundObject.setStatusAsync({ volume: 1.0 });
+    //   await this.soundObject.setVolumeAsync(1.0);
+    //   await this.soundObject.setIsLoopingAsync(true);
+    // }
+    // catch (e) {
+
+    // }
+
+
+    const currentTrip = await EslestirmeController.getCurrentTrip();
+    if (!currentTrip) {
+      this.setState({ IsCurrentTrip: false });
     }
-    catch (e) {
-
+    else {
+      this.setState({ IsCurrentTrip: true, currentTrip: currentTrip });
     }
+    this.setState({ aktifMi: false });
 
 
 
+    // EslestirmeController.Initial().then(async (e) => {
+    //   var userUid = await AsyncStorage.getItem('userToken');
+
+
+    //   var ref = firebase.database().ref("tripDatabase/" + userUid).on('value', async (snapshot) => {
+    //     try {
+
+    //       let location = await Location.getCurrentPositionAsync({}).catch(() => { alert('Bir hata meydana geldi lütfen tekrar deneyin !') });
+    //       var param1 = location.coords.latitude + ', ' + location.coords.longitude;
+    //       var param2 = snapshot.val().kalkisCordinate.lat + ', ' + snapshot.val().kalkisCordinate.long;
+    //       var Ortdakika = '25 Dakika';
+    //       this.setState({ surucuDurumText: 'Sürücü Yolda (' + Ortdakika + ')' });
+    //       EslestirmeController.calculateDriverDuration(param1, param2).then((e) => { Ortdakika = e; this.setState({ surucuDurumText: 'Sürücü Yolda (' + Ortdakika + ')' }); })
 
 
 
-
-    EslestirmeController.Initial().then(async (e) => {
-      var userUid = await AsyncStorage.getItem('userToken');
-
-
-      var ref = firebase.database().ref("tripDatabase/" + userUid).on('value', async (snapshot) => {
-        try {
-
-          let location = await Location.getCurrentPositionAsync({}).catch(() => { alert('Bir hata meydana geldi lütfen tekrar deneyin !') });
-          var param1 = location.coords.latitude + ', ' + location.coords.longitude;
-          var param2 = snapshot.val().kalkisCordinate.lat + ', ' + snapshot.val().kalkisCordinate.long;
-          var Ortdakika = '25 Dakika';
-          this.setState({ surucuDurumText: 'Sürücü Yolda (' + Ortdakika + ')' });
-          EslestirmeController.calculateDriverDuration(param1, param2).then((e) => { Ortdakika = e; this.setState({ surucuDurumText: 'Sürücü Yolda (' + Ortdakika + ')' }); })
+    //       this.setState({ currentTrip: snapshot.val(), aktifMi: snapshot.val().suan })
+    //       if (this.state.currentTrip.status == 2) {
+    //         // Get Driver Details
+    //         EslestirmeController.getDriverDetails(this.state.currentTrip.who).then((e) => this.setState({ driverDetails: e }));
+    //         var EslesmeTimer = setInterval(() => {
 
 
+    //           var leftSecond = this.state.eslesmeSecond > 0 ? this.state.eslesmeSecond - 1 : 0;
 
-          this.setState({ values: snapshot.val(), aktifMi: snapshot.val().suan })
-          if (this.state.values.durum == 2) {
-            // Get Driver Details
-            EslestirmeController.getDriverDetails(this.state.values.who).then((e) => this.setState({ driverDetails: e }));
-            var EslesmeTimer = setInterval(() => {
+    //           this.setState({ eslesmeSecond: leftSecond })
 
 
-              var leftSecond = this.state.eslesmeSecond > 0 ? this.state.eslesmeSecond - 1 : 0;
+    //           if (this.state.eslesmeSecond < 1) {
+    //             // Süre Bittiğinde
 
-              this.setState({ eslesmeSecond: leftSecond })
+    //             this.durdurHersey(this.state.currentTrip.status);
+    //             clearInterval(EslesmeTimer);
+    //           }
 
+    //         }, 1000);
 
-              if (this.state.eslesmeSecond < 1) {
-                // Süre Bittiğinde
+    //         this.EslesmeSaglandi()
+    //       }
+    //       else if (this.state.currentTrip.status == 1) {
 
-                this.durdurHersey(this.state.values.durum);
-                clearInterval(EslesmeTimer);
-              }
+    //         this.getUnreadMessages(this.state.currentTrip.tripID)
+    //         // Get Driver Details
+    //         EslestirmeController.getDriverDetails(this.state.currentTrip.who).then((e) => this.setState({ driverDetails: e }));
+    //       }
+    //       else if (this.state.currentTrip.status == 4) {
 
-            }, 1000);
+    //         alert('Eşleştirmedeki Şöför, Eşleştirmeyi İptal Etti')
+    //         firebase.database().ref('tripDatabase/' + userUid).update({ durum: 0 })
 
-            this.EslesmeSaglandi()
-          }
-          else if (this.state.values.durum == 1) {
-
-            this.getUnreadMessages(this.state.values.tripID)
-            // Get Driver Details
-            EslestirmeController.getDriverDetails(this.state.values.who).then((e) => this.setState({ driverDetails: e }));
-          }
-          else if (this.state.values.durum == 4) {
-
-            alert('Eşleştirmedeki Şöför, Eşleştirmeyi İptal Etti')
-            firebase.database().ref('tripDatabase/' + userUid).update({ durum: 0 })
-
-          }
+    //       }
 
 
 
-          if (this.state.values.durum == 0) { this.DriverGetir(); }
-          else if (this.state.values.durum == 1) { clearInterval(this.DriverIstekTimer); }
+    //       if (this.state.currentTrip.status == 0) { this.DriverGetir(); }
+    //       else if (this.state.currentTrip.status == 1) { clearInterval(this.DriverIstekTimer); }
 
-        }
-        catch (e) {
-          //Şöför  Bitirince Silince Buraya gelcek
-          this.props.propsNav.navigate('userCreditCard')
-          this.props.propsNav.navigate('Main')
-        }
+    //     }
+    //     catch (e) {
+    //       //Şöför  Bitirince Silince Buraya gelcek
+    //       this.props.propsNav.navigate('userCreditCard')
+    //       this.props.propsNav.navigate('Main')
+    //     }
 
 
 
-      });
-    }).catch((e) => this.setState({ aktifMi: false }));
+    //   });
+    // }).catch((e) => this.setState({ aktifMi: false }));
 
 
 
@@ -428,10 +442,10 @@ export default class EslestirmeComponent extends React.Component {
 
 
     // Güncelle
-    if (durumValue != 5) { // Eğer Default Valuesi Yoksa
-      var oldStateValues = this.state.values;
-      oldStateValues.durum = durumValue;
-      this.setState({ values: oldStateValues });
+    if (durumValue != 5) { // Eğer Default currentTripi Yoksa
+      var oldStatecurrentTrip = this.state.currentTrip;
+      oldStatecurrentTrip.status = durumValue;
+      this.setState({ currentTrip: oldStatecurrentTrip });
       var userUid = await AsyncStorage.getItem('userToken');
       var ref = firebase.database().ref("tripDatabase/" + userUid)
         .update({
@@ -462,29 +476,40 @@ export default class EslestirmeComponent extends React.Component {
   }
   render() {
 
-    if (this.state.aktifMi == false) {
-      // Hiç Aktif Yolculuk Eşleştirmesi Yok
+    // if (this.state.aktifMi == false) {
+    // Hiç Aktif Yolculuk Eşleştirmesi Yok
+    if (this.state.IsCurrentTrip == false) {
       return (
 
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
           <View style={{ width: 95 + '%', marginBottom: 10, marginRight: 1 + '%', padding: 8, backgroundColor: '#FFF', backgroundColor: '#2b3138', borderRadius: 4, borderColor: '#000', borderWidth: 1, }}>
             <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', fontSize: 17, textAlign: 'center', marginBottom: 7 }}>Aktif bir yolculuğunuz bulunmadı.</Text>
             <Text style={{ fontFamily: 'airbnbCereal-light', color: '#EBEBEB', textAlign: 'center', marginTop: 10, marginBottom: 5 }}>Bir yolculuk isteğiniz yok, ama hemen başlatabilirsiniz</Text>
-            <Button title='Yeni Yolculuk' onPress={() => this.props.propsNav.navigate('StartTripStack')} containerStyle={{ marginTop: 10 }} icon={<Ionicons name="ios-add-circle" style={{ marginRight: 10 }} size={20} color="#EBEBEB" />} />
+            <Button title='Yeni Yolculuk' onPress={() => this.props.propsNav.navigate('StartTrip')} containerStyle={{ marginTop: 10 }} icon={<Ionicons name="ios-add-circle" style={{ marginRight: 10 }} size={20} color="#EBEBEB" />} />
           </View>
         </View>
 
       )
     }
-    else if (this.state.aktifMi == true) {
+    else if (this.state.IsCurrentTrip == null) {
 
+      return (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 95 + '%', marginBottom: 10, marginRight: 1 + '%', padding: 8, backgroundColor: '#FFF', backgroundColor: '#2b3138', borderRadius: 4, borderColor: '#000', borderWidth: 1, }}>
+            <ActivityIndicator color='#EBEBEB'></ActivityIndicator>
+          </View>
+        </View>
 
+      );
+
+    }
+    else {
       return (
 
         <View>
           <Modal animationType="slide"
             transparent={true}
-            visible={this.state.values.durum == 2}
+            visible={this.state.currentTrip.status == 2}
 
             onRequestClose={() => {
 
@@ -577,7 +602,7 @@ export default class EslestirmeComponent extends React.Component {
 
 
           </Modal>
-          {this.state.values.durum == 0 &&
+          {this.state.currentTrip.status == 0 &&
             // Sürücü Aranırken Loading Kısmı 
 
 
@@ -609,7 +634,7 @@ export default class EslestirmeComponent extends React.Component {
 
               </View>
               <View style={{ width: 96 + '%', marginBottom: 10, alignItems: 'center', justifyContent: 'center', alignSelf: 'center', flexDirection: 'row' }}>
-                <View style={{ width: 48 + '%', marginRight: 1 + '%' }}><Button disabled={!this.state.hepsiMesgul} title='İptal Et' buttonStyle={{ backgroundColor: '#FFF', width: 100 + '%', }} titleStyle={{ color: '#2b3138' }} onPress={() => { EslestirmeController.IptalEt(this.state.values.tripPrice).then(() => this.componentDidMount()) }} containerStyle={{ marginTop: 10 }} icon={<Ionicons name="ios-trash" style={{ marginRight: 10 }} size={20} color="#2b3138" />} /></View>
+                <View style={{ width: 48 + '%', marginRight: 1 + '%' }}><Button disabled={!this.state.hepsiMesgul} title='İptal Et' buttonStyle={{ backgroundColor: '#FFF', width: 100 + '%', }} titleStyle={{ color: '#2b3138' }} onPress={() => { EslestirmeController.IptalEt(this.state.currentTrip.price).then(() => this.componentDidMount()) }} containerStyle={{ marginTop: 10 }} icon={<Ionicons name="ios-trash" style={{ marginRight: 10 }} size={20} color="#2b3138" />} /></View>
                 <View style={{ width: 48 + '%', marginLeft: 1 + '%' }}><Button disabled={!this.state.hepsiMesgul} title='Tekrar Eşleş' buttonStyle={{ backgroundColor: '#FFF', width: 100 + '%', }} titleStyle={{ color: '#2b3138' }} onPress={async () => {
 
                   this.istekBitir();
@@ -622,7 +647,7 @@ export default class EslestirmeComponent extends React.Component {
 
           }
 
-          {this.state.values.durum == 1 &&
+          {this.state.currentTrip.status == 1 &&
 
             // Sürücü Buludu Kısmı 
 
@@ -664,7 +689,7 @@ export default class EslestirmeComponent extends React.Component {
 
                   <TouchableOpacity style={{ justifyContent: 'center', position: 'absolute', right: 0, }}
                     onPress={async () => {
-                      await AsyncStorage.removeItem('ChatID').then(async () => { await AsyncStorage.setItem('ChatID', '' + this.state.values.tripID).then(() => { this.props.propsNav.navigate('ChatScreen') }) })
+                      await AsyncStorage.removeItem('ChatID').then(async () => { await AsyncStorage.setItem('ChatID', '' + this.state.currentTrip._id).then(() => { this.props.propsNav.navigate('ChatScreen') }) })
                     }}>
                     <View style={{ alignSelf: 'center', marginRight: 0, }}>
                       <Ionicons name="ios-mail-open" size={35} color="#EBEBEB" /></View>
@@ -689,36 +714,36 @@ export default class EslestirmeComponent extends React.Component {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View style={{ width: 47 + '%', marginRight: 1 + '%', padding: 8, backgroundColor: '#FFF', borderRadius: 4 }}>
               <Text style={{ color: '#333', fontFamily: 'airbnbCereal-medium', }}>Kalkış Konumu</Text>
-              <Text style={{ fontFamily: 'airbnbCereal-light', color: '#555', minHeight: 34 }}>{this.state.values.kalkisCordinate.text.substring(0, 50)}</Text>
+              <Text style={{ fontFamily: 'airbnbCereal-light', color: '#555', minHeight: 34 }}>{this.state.currentTrip.kalkisAddress.substring(0, 50)}</Text>
             </View>
             <View style={{ width: 47 + '%', marginLeft: 1 + '%', padding: 8, backgroundColor: '#FFF', borderRadius: 4 }}>
               <Text style={{ color: '#333', fontFamily: 'airbnbCereal-medium', }}>Varış Konumu</Text>
-              <Text style={{ fontFamily: 'airbnbCereal-light', color: '#555', }}>{this.state.values.varisCordinate.text.substring(0, 50)}</Text>
+              <Text style={{ fontFamily: 'airbnbCereal-light', color: '#555', }}>{this.state.currentTrip.varisAddress.substring(0, 50)}</Text>
             </View>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 10, }}>
             <View style={{ width: 31 + '%', marginRight: 1 + '%', padding: 8, backgroundColor: '#2b3138', borderRadius: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="ios-car" size={17} color="#FFF" style={{ marginRight: 5 }} />
-              <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>{this.state.values.distance}</Text>
+              <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>{this.state.currentTrip.distance} Km</Text>
             </View>
             <View style={{ width: 31 + '%', marginRight: 1 + '%', padding: 8, backgroundColor: '#2b3138', borderRadius: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="ios-time" size={17} color="#FFF" style={{ marginRight: 5 }} />
-              <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>{this.state.values.duration}</Text>
+              <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>{this.state.currentTrip.duration} Dakika</Text>
             </View>
             <View style={{ width: 31 + '%', marginRight: 1 + '%', padding: 8, backgroundColor: '#2b3138', borderRadius: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="ios-cash" size={17} color="#FFF" style={{ marginRight: 5 }} />
-              <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>{this.state.values.tripPrice} TL</Text>
+              <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>{this.state.currentTrip.price} TL</Text>
             </View>
 
 
           </View>
-          {this.state.values.durum == 1 && <View style={{ width: 95 + '%', marginRight: 1 + '%', padding: 8, margin: 6, backgroundColor: '#2b3138', borderRadius: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          {this.state.currentTrip.status == 1 && <View style={{ width: 95 + '%', marginRight: 1 + '%', padding: 8, margin: 6, backgroundColor: '#2b3138', borderRadius: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <Ionicons name="ios-information-circle" size={17} color="#FFF" style={{ marginRight: 5 }} />
             <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>Durum:  {this.state.surucuDurumText}</Text>
           </View>
           }
-          {this.state.values.durum == 1 &&
+          {this.state.currentTrip.status == 1 &&
             <TouchableOpacity onPress={() => { this.props.propsNav.navigate('HaritaforTripUser'); }} style={{ width: 95 + '%', marginRight: 1 + '%', padding: 8, margin: 6, backgroundColor: '#2b3138', borderRadius: 4, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons name="ios-map" size={17} color="#FFF" style={{ marginRight: 5 }} />
               <Text style={{ color: '#FFF', fontFamily: 'airbnbCereal-medium', textAlign: 'center' }}>Canlı Haritaya Bak</Text>
@@ -730,17 +755,14 @@ export default class EslestirmeComponent extends React.Component {
       )
 
 
-    }
-    else {
-      return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ width: 95 + '%', marginBottom: 10, marginRight: 1 + '%', padding: 8, backgroundColor: '#FFF', backgroundColor: '#2b3138', borderRadius: 4, borderColor: '#000', borderWidth: 1, }}>
-            <ActivityIndicator color='#EBEBEB'></ActivityIndicator>
-          </View>
-        </View>
 
-      );
     }
+    // }
+    // else if (this.state.aktifMi == true) {
+
+
+    //   
+    // }
 
   };
 }

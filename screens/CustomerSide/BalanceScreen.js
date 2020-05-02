@@ -141,7 +141,7 @@ export default class HomeScreen extends React.Component {
                                                 <View style={styles.logTextContainer}>
                                                     <View style={styles.logsIconContainer}>
                                                         <Ionicons name='ios-card' size={18} color='#FFF' /></View>
-                                                    <Text style={styles.logText}>Durum : {l.reason}</Text>
+                                                    <Text style={styles.logText}>Açıklama : {l.reason}</Text>
                                                 </View>
                                             </View>
                                         }

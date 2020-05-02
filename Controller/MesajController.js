@@ -63,3 +63,48 @@ export const getAllMessages = async (senderUsername) => {
   }
 
 }
+
+export const sendMesage = async (receiverUsername, message, receiverUserType) => {
+  try {
+    let response = await fetch(config.apiURL + 'Message/sendMessage', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },
+  body:JSON.stringify({receiverUsername:receiverUsername, message:message, receiverUserType:receiverUserType}), });
+    let json = await response.json();
+    if (json.status == 'ok') {
+      
+
+    
+        return json.return;
+        
+    }
+    else {
+     
+      return false;
+    }
+  } catch (error) {
+    // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+    return false;
+  }
+
+}
+export const setReadAllMessages = async (senderUsername) => {
+  try {
+    let response = await fetch(config.apiURL + 'Message/setReadedAllMessage', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json'},
+  body:JSON.stringify({senderUsername:senderUsername}) });
+    let json = await response.json();
+    if (json.status == 'ok') {
+      
+
+    
+        return json.return;
+        
+    }
+    else {
+     
+      return false;
+    }
+  } catch (error) {
+    // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+    return false;
+  }
+
+}

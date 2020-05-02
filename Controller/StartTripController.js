@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import firebase from '../components/Firebase';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import config from '../config.json';
 
 var jsonData = null;
 var HomeProps;
@@ -39,7 +40,7 @@ export const Initial = (props) => {
                 // Zaten Bir Yolculuk Başlamış
                 reject();
 
-             }).catch(()=>{resolve()});
+            }).catch(() => { resolve() });
 
         })
 
@@ -70,49 +71,42 @@ function getPlacesCordinates(place_id) {
         })
 }
 
-export const saveTripInformation = async (name, userLat, userLong, kalisLat, kalkisLong, kalkisAddress, VarisAddress, varisLat, varisLong, kisiSayisi, tercihObj, distance, duration, tripPrice, ekAciklama) => {
+export const saveTripInformation = async (startedTime, distance, duration, startCordinate, finishCordinate, passangerNumber, preferences, price,extraDetail,kalkisAddress,varisAddress) => {
 
-    return new Promise(async (resolve, reject) => {
-
-        var userUid = await AsyncStorage.getItem('userToken');
-        var tripID = Math.round(Math.random() * 99999) + 1000; // between 1000 and 99999
-        var database = firebase.database().ref('tripDatabase/' + userUid);
-        database.set({
-            surucuDurum: 0,
-            baslayanTimeStamp: 0,
-            name: name,
-            from: userUid,
-            userLat: userLat,
-            userLong: userLong,
-            tripID: tripID,
-            date: Math.floor(Date.now() / 1000),
-            kalkisCordinate:
-            {
-                lat: kalisLat,
-                long: kalkisLong,
-                text: kalkisAddress
-            },
-            varisCordinate:
-            {
-                lat: varisLat,
-                long: varisLong,
-                text: VarisAddress
-            },
-            kisiSayisi: kisiSayisi,
-            tercih: tercihObj,
-            distance: distance,
-            duration: duration,
-            tripPrice: tripPrice,
-            ekAciklama: ekAciklama,
-            onay: false,
-            suan: true,
-            durum: 0,
-            who: '',
-            carInf: {},
-            ppImage: '',
-            yolculukDurum:0,
-        }).then(() => resolve());
-    });
+    try {
+        let response = await fetch(config.apiURL + 'Trip/startTrip', {
+            method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },
+            body: JSON.stringify({
+                startedTime:startedTime, 
+                distance:distance, 
+                duration:duration, 
+                startCordinate:startCordinate, 
+                finishCordinate:finishCordinate, 
+                passangerNumber:passangerNumber, 
+                preferences:preferences, 
+                price:price,
+                extraDetail:extraDetail,
+                kalkisAddress:kalkisAddress,
+                varisAddress:varisAddress,
+            })
+        });
+        let json = await response.json();
+        if (json.status == 'fail') {
+           
+            if(json.message == 'noSufficientMoney'){alert('Bu yolculuk için bakiyeniz yetersiz.');}
+            if(json.message == 'activeTripError'){alert('Zaten mevcut bir yolculuğunuz var.');}
+            alert(JSON.stringify(json))
+            return false;
+      
+        }
+        else {
+            alert('ok')
+            return json.return; //ok
+        }
+    } catch (error) {
+        // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+        return false;
+    }
 
 }
 

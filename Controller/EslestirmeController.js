@@ -5,6 +5,7 @@ import firebase from '../components/Firebase';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import * as BalanceController from './BalanceController';
+import config from '../config.json';
 var jsonData = null;
 var Props;
 
@@ -158,4 +159,30 @@ export const IptalEtDriver = async (yolcuUid) => {
 
 
 
+}
+
+export const getCurrentTrip = async () => {
+
+
+        try {
+                let response = await fetch(config.apiURL + 'Trip/checkCurrentTrip', {
+                    method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', },
+                });
+                let json = await response.json();
+                if (json.status == 'ok') {
+                   
+                    // Eğer Varsa Trip
+                    
+                    return json.return;
+              
+                }
+                else {
+                 // Eğer Yoksa
+                return false; //ok
+                }
+            } catch (error) {
+                // return alert('Sunucuya bağlantı aşamasında sorun çıktı. İnternet bağlantınızı kontrol edin' + error);
+                return {error:error};
+            }
+        
 }

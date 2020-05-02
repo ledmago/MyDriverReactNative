@@ -30,6 +30,8 @@ import * as BalanceController from '../../Controller/BalanceController';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Polyline from '@mapbox/polyline';
 import EslestirmeComponent from '../../components/Eslestirme';
+import NumericInput from 'react-native-numeric-input';
+import * as MapApi from '../../Controller/MapApi';
 
 
 export default class HomeScreen extends React.Component {
@@ -80,22 +82,14 @@ export default class HomeScreen extends React.Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
-        title: ('Yeni Yolculuk Başlat'),
-        headerLeft: () => (
-            <TouchableOpacity
-                style={{ marginLeft: 20 }}
-                onPress={navigation.getParam('goBack')}
-                title="Info"
-                color="#fff"
-            ><Ionicons name="ios-arrow-back" size={35} color="#444" /></TouchableOpacity>
+      title: ('Yeni Yolculuk Başlat'),
+      header: null,
 
-
-        ),
     };
-};
-NavgoBack = () => {
-  this.props.navigation.navigate('Main')
-};
+  };
+  NavgoBack = () => {
+    this.props.navigation.navigate('Main')
+  };
 
 
   CheckLocation = async (buttondanGeldi = false) => {
@@ -108,24 +102,25 @@ NavgoBack = () => {
 
 
     this.setState({ latitude: location.coords.latitude, longitude: location.coords.longitude, ModalLoading: false });
-    this.setState({ geoCoding: await CustomerSide_HomeController.GET_ADRESS(location.coords.latitude, location.coords.longitude) });
+    this.setState({ geoCoding: await MapApi.getStringAddressByCoordinate(location.coords.latitude, location.coords.longitude) });
   }
 
 
 
   async componentDidMount() {
-    this.props.navigation.setParams({ goBack: this.NavgoBack });
-    CustomerSide_StartTripController.Initial(this.props).then(() => {
-      // Yolculuk Yoksa
-      this.setState({ yolculukVarMi: false });
-      CustomerSide_HomeController.Initial(this.props);
+    this.CheckLocation();
+    // this.props.navigation.setParams({ goBack: this.NavgoBack });
+    // CustomerSide_StartTripController.Initial(this.props).then(() => {
+    //   // Yolculuk Yoksa
+    //   this.setState({ yolculukVarMi: false });
+    //   CustomerSide_HomeController.Initial(this.props);
 
-      this.CheckLocation();
-      CustomerSide_StartTripController.getUserDetails().then((userDetails) => this.setState({ userDetails: userDetails }))
-    }).catch(() => {
-      // Yolculuk Varsa Daha Önceden
-      this.setState({ yolculukVarMi: true, ModalLoading: false });
-    })
+    //   this.CheckLocation();
+    //   CustomerSide_StartTripController.getUserDetails().then((userDetails) => this.setState({ userDetails: userDetails }))
+    // }).catch(() => {
+    //   // Yolculuk Varsa Daha Önceden
+    //   this.setState({ yolculukVarMi: true, ModalLoading: false });
+    // })
 
 
   }
@@ -356,20 +351,12 @@ NavgoBack = () => {
 
                   <Text style={styles.baslikText}>Adım 4: Yolculuk Bilgileri</Text>
 
-                  <Text style={{ paddingLeft: 15, fontFamily: 'airbnbCereal-light', fontSize: 16, }}>Yolculuk Bilgilerini Girin</Text>
+                  <Text style={{ paddingLeft: 15, fontFamily: 'airbnbCereal-light', fontSize: 16, }}>Kişi Sayısı</Text>
 
-                  <TextInput
-                    placeholderTextColor={'#CCC'}
-                    style={styles.input}
-                    value={this.state.kisiSayisi}
-                    onChangeText={kisiSayisi => this.setState({ kisiSayisi })}
-                    placeholder="Kişi Sayısı"
-                    autoCorrect={false}
-                    keyboardType='decimal-pad'
-                    returnKeyType='none'
-                    onSubmitEditing={this._submit}
-                    blurOnSubmit={true}
-                  />
+                 
+                  <NumericInput value={this.state.kisiSayisi} maxValue={5} minValue={1} onChange={kisiSayisi => this.setState({kisiSayisi})} />
+                 
+                 
                   <Text style={{ paddingLeft: 15, marginTop: 10, fontFamily: 'airbnbCereal-light', }}>Tercih Edilen Araç Tipi</Text>
 
 
@@ -433,8 +420,8 @@ NavgoBack = () => {
                 }
                 if (nextStep == 3) {
                   this.setState({ ModalLoading: true });
-                  var kalkisAdress = await CustomerSide_HomeController.GET_ADRESS(this.state.kalkisCordinate.latitude, this.state.kalkisCordinate.longitude);
-                  var varisAddress = await CustomerSide_HomeController.GET_ADRESS(this.state.varisCordinate.latitude, this.state.varisCordinate.longitude);
+                  var kalkisAdress = await MapApi.getStringAddressByCoordinate(this.state.kalkisCordinate.latitude, this.state.kalkisCordinate.longitude);
+                  var varisAddress = await MapApi.getStringAddressByCoordinate(this.state.varisCordinate.latitude, this.state.varisCordinate.longitude);
                   this.setState({ kalkisAdress: kalkisAdress.display_name, varisAddress: varisAddress.display_name })
                   var ortalama_latitude = (this.state.kalkisCordinate.latitude + this.state.varisCordinate.latitude) / 2
                   var ortalama_longitude = (this.state.kalkisCordinate.longitude + this.state.varisCordinate.longitude) / 2
@@ -452,50 +439,39 @@ NavgoBack = () => {
                 if (nextStep == 7) {
                   // Şuan Zaten Step 6 Dasın
                   //Bitir
-                  if (parseFloat(this.state.userDetails.balance) > parseFloat(this.state.TripPrice)) {
 
-                    this.setState({ ModalLoading: true }) // loading Ekranını Aç
-                    // Veritabanına Kayıt Et
-                    CustomerSide_StartTripController.saveTripInformation(
-                      this.state.userDetails.name,
-                      this.state.latitude,
-                      this.state.longitude,
-                      this.state.kalkisCordinate.latitude,
-                      this.state.kalkisCordinate.longitude,
-                      this.state.kalkisAdress,
-                      this.state.varisAddress,
-                      this.state.varisCordinate.latitude,
-                      this.state.varisCordinate.longitude,
-                      this.state.kisiSayisi,
-                      {
-                        hepsi: this.state.hepsi,
-                        hatchback: this.state.hatchback,
-                        sedan: this.state.sedan,
-                        minibus: this.state.minibus,
-                        suv: this.state.suv,
-                      },
-                      this.state.distance,
-                      this.state.duration,
-                      this.state.TripPrice,
-                      this.state.EkAciklama,
-                    ).then((e) => {
+                  this.setState({ ModalLoading: true }) // loading Ekranını Aç
+                  // Veritabanına Kayıt Et
+                  const saveTripRequest = await CustomerSide_StartTripController.saveTripInformation(
+                    Date.now(), // startedTime
+                    this.state.distance, // distance
+                    this.state.duration, //duration
+                    { latitude: this.state.kalkisCordinate.latitude, longitude: this.state.kalkisCordinate.longitude }, // startCordinate
+                    { latitude: this.state.varisCordinate.latitude, longitude: this.state.varisCordinate.longitude }, //finishCordinate
+                    this.state.kisiSayisi, //passangerNumber
+                    {
+                      hepsi: this.state.hepsi,
+                      hatchback: this.state.hatchback,
+                      sedan: this.state.sedan,
+                      minibus: this.state.minibus,
+                      suv: this.state.suv,
+                    }, //preferences
+                    this.state.TripPrice,// price
+                    this.state.EkAciklama, // extraDetail
+                    this.state.kalkisAdress, //Kalkış Adresi String
+                    this.state.varisAddress, //Varış ADresi String
+                    )
+                    if(saveTripRequest) {
 
-                      CustomerSide_StartTripController.reduceBalance(this.state.TripPrice).then(() => {
+                
+                  
+                        // alert('Yolculuğunuz kaydedildi. Şöför Aranıyor..');
+                        this.setState({ ModalLoading: false });
+                        //this.props.navigation.navigate('EslestirmeScreen');
+                      }
+                    
+                 
 
-                        BalanceController.addLogs({ cardNumber: 'Yolculuk Ücreti', date: new Date().toISOString().slice(0, 10), amount: this.state.TripPrice })
-
-                        CustomerSide_StartTripController.onayTrip().then(() => {
-                          alert('Yolculuğunuz kaydedildi. Şöför Aranıyor..');
-                          this.setState({ ModalLoading: false });
-                          this.props.navigation.navigate('EslestirmeScreen');
-                        });
-                      });
-                    });
-                  }
-                  else {
-                    alert('Paranız Yok ');
-                    // NOT SUFFICIENT BALANCE
-                  }
 
 
                 }

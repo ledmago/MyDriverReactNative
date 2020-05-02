@@ -33,15 +33,16 @@ import EslestirmeComponent from '../components/Eslestirme';
 import * as userRequest from '../Controller/UserRequest';
 import config from '../config.json';
 import * as UserRequest from '../Controller/UserRequest';
+import * as LocationTracker from '../Controller/LocationTracker';
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-   this.onRefresh = this.onRefresh.bind(this);
+    this.onRefresh = this.onRefresh.bind(this);
   }
 
 
-  
+
 
   state = {
     profilePicture: config.apiURL + 'UserProfile/getProfilePicture/default/default',
@@ -98,21 +99,21 @@ export default class HomeScreen extends React.Component {
 
     this.setState({ refreshing: showRefresh })
 
-   // Kullanıcı Bilgileri //
-      
-     //Datadaki İstek
-      var getuserDetailsJSON = JSON.parse(await AsyncStorage.getItem('userDetails'));
-      this.setState({userDetails:getuserDetailsJSON});
+    // Kullanıcı Bilgileri //
 
-      //Gerçek İstek
-      var refreshUserDetails = await UserRequest.refreshUserDetails();
-      this.setState({userDetails:refreshUserDetails});
-      // Profil Fotoğrafı Güncelleme
-      var profilePicture = await userRequest.getProfilePicture(this.state.userDetails.username, this.state.userDetails.userType);
-      this.setState({ profilePicture: profilePicture })
-      
-      
-      this.setState({ refreshing: false });
+    //Datadaki İstek
+    var getuserDetailsJSON = JSON.parse(await AsyncStorage.getItem('userDetails'));
+    this.setState({ userDetails: getuserDetailsJSON });
+
+    //Gerçek İstek
+    var refreshUserDetails = await UserRequest.refreshUserDetails();
+    this.setState({ userDetails: refreshUserDetails });
+    // Profil Fotoğrafı Güncelleme
+    var profilePicture = await userRequest.getProfilePicture(this.state.userDetails.username, this.state.userDetails.userType);
+    this.setState({ profilePicture: profilePicture })
+
+
+    this.setState({ refreshing: false });
     // this._EslestirmeComponent.componentDidMount();
   }
   static navigationOptions = ({ navigation }) => {
@@ -121,8 +122,38 @@ export default class HomeScreen extends React.Component {
     }
   }
 
+  saveLocation = async () => {
+
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    location = await Location.watchPositionAsync(
+      {
+        enableHighAccuracy: true,
+        distanceInterval: 1,
+        timeInterval: 10000
+      },
+      async newLocation => { // Başarılı Olunca
+        let { coords } = newLocation;
+        // console.log(coords);
+        // let region = {
+        //   latitude: coords.latitude,
+        //   longitude: coords.longitude,
+        //   latitudeDelta: 0.045,
+        //   longitudeDelta: 0.045
+        // };
+       
+        this.setState({ latitude: coords.latitude, longitude: coords.longitude, Modal1Open: false, Modal1OpenLoadingButton: false });
+        await LocationTracker.saveLocation(coords.latitude, coords.longitude);
+        // //Client Update
+        // OnlineController.updateUserRealTime(false).then((e) => { this.getOnlineUser(); this.getOnlineDrivers() });
+        // OnlineController.updateUserRealTimeLocation(false, this.state.userDetails.name, coords.latitude, coords.longitude, this.state.geoCoding.display_name).then((e) => { this.getOnlineUser(); this.getOnlineDrivers() });
 
 
+
+      },
+      error => { location.reload(); this.setState({ Modal1Open: true }) }
+    );
+
+  };
   CheckLocation = async (buttondanGeldi = false) => {
     setInterval(() => { OnlineController.updateUserRealTime(false).then((e) => { this.getOnlineUser(); this.getOnlineDrivers() }); }, 10000)
     if (buttondanGeldi) { this.setState({ Modal1OpenLoadingButton: true }) }
@@ -175,10 +206,10 @@ export default class HomeScreen extends React.Component {
     
   }*/
 
-componentWillUnmount() {
+  componentWillUnmount() {
     // Remove the event listener before removing the screen from the stack
     this.focusListener.remove();
-}
+  }
 
   async componentDidMount() {
 
@@ -192,13 +223,16 @@ componentWillUnmount() {
       this.onRefresh(false);
     });
 
+
+
+
     // CustomerSide_HomeController.Initial(this.props);
     // // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
     // CustomerSide_HomeController.getUserDetails().then((userdata) => { this.setState({ userDetails: userdata }); })
 
     // //  CustomerSide_HomeController.getOnlineUsers().then((e) => {/* this.setState({onlineUsers:e}); */   });
     // this.CheckLocation();
-
+this.saveLocation();
   }
 
   mapStyle = [
@@ -401,7 +435,7 @@ componentWillUnmount() {
 
 
         <View style={styles.ProfileHeader}>
-          <TouchableOpacity onPress={()=>this.props.navigation.navigate('UploadProfilePhoto')}>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('UploadProfilePhoto')}>
             <Avatar
               source={{
                 uri: this.state.profilePicture,
@@ -421,7 +455,7 @@ componentWillUnmount() {
             </View>
 
           </View>
-          <TouchableOpacity onPress={() => { this.props.navigation.navigate('BalanceScreen') }} style={{ flexDirection: 'row', backgroundColor: '#fed32c', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{this.state.userDetails.balance}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('BalanceScreen') }} style={{ flexDirection: 'row', backgroundColor: '#fed32c', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{Math.round(parseFloat(this.state.userDetails.balance) * 10) / 10}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
 
 
         </View>
@@ -477,9 +511,9 @@ componentWillUnmount() {
           </View>
 
           <View style={{ marginTop: 10, paddingTop: 10, borderWidth: 2, borderStyle: 'dashed', borderColor: 'red', paddingTop: 15, paddingBottom: 15, width: 97 + '%', alignSelf: 'center', borderRadius: 4, }}>
-            {/* <EslestirmeComponent ref={(_EslestirmeComponent) => this._EslestirmeComponent = _EslestirmeComponent} propsNav={this.props.navigation} anasayfa={true}></EslestirmeComponent>
+            <EslestirmeComponent ref={(_EslestirmeComponent) => this._EslestirmeComponent = _EslestirmeComponent} propsNav={this.props.navigation} anasayfa={true}></EslestirmeComponent>
             <TouchableOpacity onPress={() => this.props.navigation.navigate('EslestirmeScreen')} style={{ backgroundColor: '#CCC', marginTop: 5, paddingVertical: 10, }}><Text style={{ textAlign: 'center', fontFamily: 'airbnbCereal-light' }}>Detayları Görüntüle</Text></TouchableOpacity>
-           */}
+
           </View>
 
           <View style={{ marginTop: 10 }}><Text style={styles.headerText}>Ödeme Ayarları</Text></View>

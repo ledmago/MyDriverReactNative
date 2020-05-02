@@ -26,6 +26,8 @@
     "expo-background-fetch": "~8.0.0",
     "expo-constants": "~8.0.0",
     "expo-font": "~8.0.0",
+    "expo-image-manipulator": "~8.0.0",
+    "expo-image-picker": "~8.0.1",
     "expo-media-library": "~8.0.0",
     "expo-task-manager": "~8.0.0",
     "expo-web-browser": "~8.0.0",
@@ -46,6 +48,7 @@
     "react-native-maps-directions": "^1.7.3",
     "react-native-maps-navigation": "0.0.14",
     "react-native-mapview": "0.0.1",
+    "react-native-numeric-input": "^1.8.3",
     "react-native-optiongroup": "0.0.7",
     "react-native-paper": "^3.6.0",
     "react-native-parsed-text": "0.0.21",
@@ -64,9 +67,7 @@
     "react-navigation-tabs": "~2.6.2",
     "react-navigation-transitions": "^1.0.12",
     "styled-components": "^5.0.1",
-    "styled-components-native": "^1.0.2",
-    "expo-image-picker": "~8.0.1",
-    "expo-image-manipulator": "~8.0.0"
+    "styled-components-native": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",

@@ -23,97 +23,50 @@ import * as MessageController from '../Controller/MesajController';
 export default class Example extends React.Component {
   constructor(props) {
     super(props);
+    this.userDetails = {};
   }
- chatDetails = {
-   username: this.props.navigation.state.params.username,
-   profilePicture:this.props.navigation.state.params.profilePicture,
-   firstName:this.props.navigation.state.params.firstName,
-   lastName:this.props.navigation.state.params.lastName,
+  chatDetails = {
+    username: this.props.navigation.state.params.username,
+    userType: this.props.navigation.state.params.userType,
+    profilePicture: this.props.navigation.state.params.profilePicture,
+    firstName: this.props.navigation.state.params.firstName,
+    lastName: this.props.navigation.state.params.lastName,
   };
   state = {
     okunmayanMesaj: 0,
     userUid: '',
-    messages: [
-      {
-        _id: 1,
-        text: 'Hello developers',
-        createdAt: new Date(),
-        user: {
-          _id: 21,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ],
+    messages:[],
   }
-  
+
   static navigationOptions = ({ navigation }) => {
     return {
-        header: () => null
+      header: () => null
     }
-}
-
-
-  setUnreadMessages = async(tripID) => {
-    var userUid = await AsyncStorage.getItem('userToken');
-    let dbCon = firebase.database().ref("chat/" + tripID);
-    dbCon.once("value", async (snapshot) => {
-      snapshot.forEach((child) => {
-        if (child.val().user._id != userUid) {
-          child.ref.update({
-            okunmadi: false
-          });
-        }
-      });
-    });
   }
 
-  getMessages = (tripID) => {
 
 
 
-    firebase.database().ref('chat/' + tripID).orderByChild('createdAt').on('child_added', (e) => {
 
-      /*
-            var TempMessages = this.state.messages;
-            TempMessages.push(e.val())
-            this.setState({ messages: TempMessages })
-      */
+  async componentDidMount() {
+    this.userDetails = JSON.parse(await AsyncStorage.getItem('userDetails'));
+    var allMessagelist = await MessageController.getAllMessages(this.chatDetails.username);
+    var convertMessages = [];
+    allMessagelist.map((item) => {
+      convertMessages.push({
+        _id: item.id,
+        text: item.message,
+        createdAt: new Date(),
+        user: {
+          _id: item.senderUsername,
+          name: item.name,
+          avatar: this.chatDetails.profilePicture,
+        },
 
-      this.setState(previousState => ({
-
-        messages: GiftedChat.append(previousState.messages, e.val()),
-      }))
-
-
+      })
 
     })
-
-  }
-  async componentDidMount() {
- var allMessagelist = await MessageController.getAllMessages(this.chatDetails.username);
- var convertMessages = [];
- allMessagelist.map((item)=>{
-  convertMessages.push({
-    _id: item.id,
-    text: item.message,
-    createdAt: new Date(),
-    user: {
-      _id: 21,
-      name: item.name,
-      avatar: this.chatDetails.profilePicture,
-    },
-
-  })
-
- })
- this.setState({messages:convertMessages})
-
-    // var userUid = await AsyncStorage.getItem('userToken');
-    // this.setState({ userUid: userUid });
-    // this.props.navigation.setParams({ goBack: this.NavgoBack });
-    // this.getMessages(await AsyncStorage.getItem('ChatID'))
-    // this.setUnreadMessages(await AsyncStorage.getItem('ChatID'))
+    this.setState({ messages: convertMessages })
 
 
   }
@@ -122,72 +75,94 @@ export default class Example extends React.Component {
 
 
     var messageObj = messages[0];
-    messageObj.createdAt = new Date() / 1000;
-    messageObj.okunmadi = true;
-    firebase.database().ref('chat/' + await AsyncStorage.getItem('ChatID')).push(messageObj)
+    messageObj.createdAt = Date.now();
+    const MesajGonder = await MessageController.sendMesage(this.chatDetails.username, messageObj.text, this.chatDetails.userType);
+    if (MesajGonder) {
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, {
+
+          _id: MesajGonder.id,
+          text: MesajGonder.message,
+          createdAt: new Date(),
+          user: {
+            _id: MesajGonder.senderUsername,
+            name: MesajGonder.name,
+          },
+
+
+
+
+        }),
+      }))
+
+
+    }
 
 
   }
 
   render() {
     return (
-    
-        <View style={styles.container}>
-           
-            <View style={styles.header}>
-                <View style={styles.headerContainer}>
-                    <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.pop()}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
-                    <Text style={styles.headerTitle}>{this.chatDetails.firstName} {this.chatDetails.lastName}</Text>
-                </View>
 
-            </View>
+      <View style={styles.container}>
+
+        <View style={styles.header}>
+          <View style={styles.headerContainer}>
+            <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.props.navigation.pop()}><Ionicons name="ios-arrow-back" size={35} color="#CCC" /></TouchableOpacity>
+            <Text style={styles.headerTitle}>{this.chatDetails.firstName} {this.chatDetails.lastName}</Text>
+          </View>
+
+        </View>
 
 
-            <GiftedChat
-        placeholder='Mesaj Yazın'
-        messages={this.state.messages}
-        onSend={messages => this.onSend(messages)}
-        user={{
-          _id: this.state.userUid,
-          avatar: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg'
-        }}
-      />  
+        {this.state.messages.length < 1 && <ActivityIndicator size={40} style={{marginTop:50}} />}
+        {this.state.messages.length > 0 && <GiftedChat
+          multiline={false}
+          loadEarlier={false}
+          placeholder='Mesaj Yazın'
+          messages={this.state.messages}
+          onSend={messages => this.onSend(messages)}
+          user={{
+            _id: this.userDetails.username,
+            avatar: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg'
+          }}
+        />}
 
-     
+
       </View>
     )
   }
 }
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
-      backgroundColor: '#202329',
+    flex: 1,
+    backgroundColor: '#202329',
 
   },
   header: {
-      width: 100 + '%',
-      backgroundColor: '#2b3138',
-      height: 83,
-      alignContent: 'center',
-      justifyContent: 'center',
-      paddingLeft: 10
+    width: 100 + '%',
+    backgroundColor: '#2b3138',
+    height: 83,
+    alignContent: 'center',
+    justifyContent: 'center',
+    paddingLeft: 10
 
   },
   headerContainer: {
-      flexDirection: 'row',
+    flexDirection: 'row',
 
   },
   headerTitle: {
-      fontSize: 20,
-      paddingLeft: 25,
-      textAlignVertical: 'center',
-      color: '#CCC',
-      textAlign: 'left',
-      fontFamily: 'airbnbCereal-medium',
+    fontSize: 20,
+    paddingLeft: 25,
+    textAlignVertical: 'center',
+    color: '#CCC',
+    textAlign: 'left',
+    fontFamily: 'airbnbCereal-medium',
   },
   listItemContainer: {
-      backgroundColor: '#202329',
-      borderBottomWidth: 0.5,
-      borderBottomColor: '#000'
+    backgroundColor: '#202329',
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#000'
   }
 });

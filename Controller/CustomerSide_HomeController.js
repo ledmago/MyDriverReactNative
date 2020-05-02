@@ -131,7 +131,7 @@ export const GET_ADRESS = async (lat, long) => {
         var newAddress = { display_name: responseData.results[0].formatted_address }
         resolve(newAddress); // display_name yerine formatted_address Yaz
 
-      }).catch(() => { reject('red') })
+      }).catch((e) => { alert(JSON.stringify(responseData.results[0])); reject('red') })
 
 
   })
