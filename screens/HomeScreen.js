@@ -34,11 +34,21 @@ import * as userRequest from '../Controller/UserRequest';
 import config from '../config.json';
 import * as UserRequest from '../Controller/UserRequest';
 import * as LocationTracker from '../Controller/LocationTracker';
+window.navigator.userAgent = 'react-native';
+import io from 'socket.io-client';
+// import socket from '../components/socket.io';
+
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.onRefresh = this.onRefresh.bind(this);
+    
+   
+
+    
+
+   
   }
 
 
@@ -125,7 +135,7 @@ export default class HomeScreen extends React.Component {
   saveLocation = async () => {
 
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    location = await Location.watchPositionAsync(
+    var location = await Location.watchPositionAsync(
       {
         enableHighAccuracy: true,
         distanceInterval: 1,
@@ -210,8 +220,46 @@ export default class HomeScreen extends React.Component {
     // Remove the event listener before removing the screen from the stack
     this.focusListener.remove();
   }
+  // socket = io.connect('https://af53fb71.ngrok.io', {
+  //   transports: ['websocket'],
+  //   reconnectionAttempts: 15 //Nombre de fois qu'il doit réessayer de se connecter
+  // });
 
   async componentDidMount() {
+   
+      // //Ecoute de l'évènement
+      // this.socket.on('update', () => {
+      //   alert('asdas')
+      //   this.socket.emit('update'); // Emission d'un message
+
+      //   //Modification du status de connexion
+      //   this.setState({
+      //     connected: true
+      //   });
+      // });
+    
+    
+    try{
+       const connectionConfig = {
+      jsonp: false,
+      reconnection: true,
+      reconnectionDelay: 100,
+      reconnectionAttempts: 100000,
+      transports: ['websocket'], 
+      forceNew: true,
+     };
+
+      var socket = io('http://192.168.0.102:1337/',connectionConfig);
+    socket.on('update', function(){
+      
+       alert('girdi');
+      });}
+      catch(e)
+      {
+        alert('hata' + e)
+      }
+
+
 
     this.onRefresh();
 
@@ -224,7 +272,7 @@ export default class HomeScreen extends React.Component {
     });
 
 
-
+ 
 
     // CustomerSide_HomeController.Initial(this.props);
     // // User Details'i Çek ve UserDetails'i State Durumuna Aktar. 
@@ -232,6 +280,7 @@ export default class HomeScreen extends React.Component {
 
     // //  CustomerSide_HomeController.getOnlineUsers().then((e) => {/* this.setState({onlineUsers:e}); */   });
     // this.CheckLocation();
+
 this.saveLocation();
   }
 
@@ -455,7 +504,7 @@ this.saveLocation();
             </View>
 
           </View>
-          <TouchableOpacity onPress={() => { this.props.navigation.navigate('BalanceScreen') }} style={{ flexDirection: 'row', backgroundColor: '#fed32c', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{Math.round(parseFloat(this.state.userDetails.balance) * 10) / 10}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => {this.props.navigation.navigate('BalanceScreen') }} style={{ flexDirection: 'row', backgroundColor: '#fed32c', height: 50, minWidth: 90, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 5 }}><Text style={{ fontSize: 23, fontFamily: 'airbnbCereal-medium', marginRight: 3 }}>{Math.round(parseFloat(this.state.userDetails.balance) * 10) / 10}</Text><Image style={{ height: 20, width: 15 }} source={require('../assets/images/tlicon.png')} /></TouchableOpacity>
 
 
         </View>
