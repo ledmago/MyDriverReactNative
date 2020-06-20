@@ -36,7 +36,7 @@ import * as UserRequest from '../Controller/UserRequest';
 import * as LocationTracker from '../Controller/LocationTracker';
 window.navigator.userAgent = 'react-native';
 import io from 'socket.io-client';
-// import socket from '../components/socket.io';
+import socketModule from '../components/socket.io';
 
 
 export default class HomeScreen extends React.Component {
@@ -52,7 +52,8 @@ export default class HomeScreen extends React.Component {
   }
 
 
-
+    
+  anasayfaSocketIo = new socketModule()
 
   state = {
     profilePicture: config.apiURL + 'UserProfile/getProfilePicture/default/default',
@@ -238,26 +239,32 @@ export default class HomeScreen extends React.Component {
       //   });
       // });
     
-    
-    try{
-       const connectionConfig = {
-      jsonp: false,
-      reconnection: true,
-      reconnectionDelay: 100,
-      reconnectionAttempts: 100000,
-      transports: ['websocket'], 
-      forceNew: true,
-     };
 
-      var socket = io('http://192.168.0.102:1337/',connectionConfig);
-    socket.on('update', function(){
+this.anasayfaSocketIo.socket.on('update', function(){
       
-       alert('girdi');
-      });}
-      catch(e)
-      {
-        alert('hata' + e)
-      }
+     alert('girdi');
+    });
+   
+
+    // try{
+    //    const connectionConfig = {
+    //   jsonp: false,
+    //   reconnection: true,
+    //   reconnectionDelay: 100,
+    //   reconnectionAttempts: 100000,
+    //   transports: ['websocket'], 
+    //   forceNew: true,
+    //  };
+
+    //   var socket = io(config.serverUrl,connectionConfig);
+    // socket.on('update', function(){
+      
+    //    alert('girdi');
+    //   });}
+    //   catch(e)
+    //   {
+    //     alert('hata' + e)
+    //   }
 
 
 
