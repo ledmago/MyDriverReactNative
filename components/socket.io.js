@@ -5,7 +5,7 @@ import * as UserRequest from '../Controller/UserRequest';
 import { AsyncStorage } from 'react-native';
 
 class SocketIo {
-    constructor(userUid) {
+    constructor() {
         this.connectionConfig = {
             jsonp: false,
             reconnection: true,
