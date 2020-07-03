@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MyDriver v0.01",
-    "slug": "mydriver001",
+    "name": "MyDriver v0.3",
+    "slug": "mydriver02",
     "privacy": "public",
     "sdkVersion": "36.0.0",
     "platforms": [
@@ -36,6 +36,6 @@
       "package": "com.takemethere.yourappname",
       "versionCode": 1
     },
-    "description": ""
+    "description": "Global Server https://mydriver.azurewebsites.net/"
   }
 }

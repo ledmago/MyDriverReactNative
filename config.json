@@ -1,5 +1,7 @@
 {
    "GoogleMapApiKey":"AIzaSyCnxh-3HMnSm-FHDuQ4kRQ7fYfUlicd7i0",
+//    "apiURL":"https://mydriver.azurewebsites.net/Api/",
+//    "serverUrl":"https://mydriver.azurewebsites.net/"
     "apiURL":"http://192.168.3.20:1337/Api/",
     "serverUrl":"http://192.168.3.20:1337/"
 }

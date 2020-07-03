@@ -29,12 +29,17 @@ import * as MesajController from '../Controller/MesajController';
 import CreditCardComponent from '../components/CreditCardList';
 import firebase from '../components/Firebase';
 import { ListItem } from 'react-native-elements';
+// import socketModule from '../components/socket.io';
+
 
 export default class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
 
     }
+
+    // gelenkutusuSocket = new socketModule();
+
     state = {
         contentLoading:false,
         gelenKutusuList: [
@@ -81,8 +86,8 @@ export default class HomeScreen extends React.Component {
 
     async componentDidMount() {
 
-
-
+        
+        // this.gelenkutusuSocket.socket.on()
         // Sayfaya her gelişinde yenilenmesini sağlıyor
         const { navigation } = this.props;
         this.focusListener = navigation.addListener('didFocus', () => {
