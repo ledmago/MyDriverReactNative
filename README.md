@@ -5,6 +5,7 @@
  Kullanılan Teknolojiler :
  - React Native
  - Restfull Api
+ -Google Map(Kilometre hesaplama, İki mesafe arası varış süresi hesaplama, ve ücret hesaplama)
  - Socket io ile realtime
  - Push Notification
  - Authorization System
