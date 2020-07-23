@@ -2,7 +2,7 @@
  MyDriver React Native ile yapılmış, ubere benzer araç çağırma ve yolculuk mobil uygulamasıdır.
  
  Mydriver React native mobil uygulaması
- Kullanılan Teknolojiler
+ Kullanılan Teknolojiler :
  - React Native
  - Restfull Api
  - Socket io ile realtime
