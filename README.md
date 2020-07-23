@@ -11,7 +11,7 @@
  - Mongo DB (Veri Tabanı => Restfull api kullanıyor)
  
   
-![alt text](https://raw.githubusercontent.com/ledmago/MyDriverReactNative/master/Photos/1.jpg)
+![test img size](https://raw.githubusercontent.com/ledmago/MyDriverReactNative/master/Photos/1.jpg | width=200)
 ![alt text](https://raw.githubusercontent.com/ledmago/MyDriverReactNative/master/Photos/2.jpeg)
   
 ![alt text](https://raw.githubusercontent.com/ledmago/MyDriverReactNative/master/Photos/3.jpeg)
